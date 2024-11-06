@@ -3,54 +3,54 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <stdint.h>
 
-#define TWO_PI 6.28318530717958647692
+#define PI 3.14159265358979323846
 
 void write_wav_header(FILE *file, int sample_rate, int num_samples) {
-    int num_channels = 2;
-    int byte_rate = sample_rate * num_channels * sizeof(int16_t);
-    int block_align = num_channels * sizeof(int16_t);
-    int data_size = num_samples * num_channels * sizeof(int16_t);
+    int byte_rate = sample_rate * 2 * 2; // 2 channels, 2 bytes per sample
+    int block_align = 2 * 2;
+    int data_chunk_size = num_samples * 2 * 2;
+    int file_size = 36 + data_chunk_size;
 
+    // RIFF header
     fwrite("RIFF", 1, 4, file);
-    int32_t chunk_size = 36 + data_size;
-    fwrite(&chunk_size, 4, 1, file);
+    fwrite(&file_size, 4, 1, file);
     fwrite("WAVE", 1, 4, file);
-    fwrite("fmt ", 1, 4, file);
 
-    int32_t subchunk1_size = 16;
-    int16_t audio_format = 1;
-    int16_t num_channels_s = num_channels;
-    int32_t sample_rate_s = sample_rate;
+    // fmt subchunk
+    fwrite("fmt ", 1, 4, file);
+    int subchunk1_size = 16;
+    short audio_format = 1;
+    short num_channels = 2;
     fwrite(&subchunk1_size, 4, 1, file);
     fwrite(&audio_format, 2, 1, file);
-    fwrite(&num_channels_s, 2, 1, file);
-    fwrite(&sample_rate_s, 4, 1, file);
+    fwrite(&num_channels, 2, 1, file);
+    fwrite(&sample_rate, 4, 1, file);
     fwrite(&byte_rate, 4, 1, file);
     fwrite(&block_align, 2, 1, file);
-    fwrite(&(int16_t){16}, 2, 1, file);
+    short bits_per_sample = 16;
+    fwrite(&bits_per_sample, 2, 1, file);
 
+    // data subchunk
     fwrite("data", 1, 4, file);
-    fwrite(&data_size, 4, 1, file);
+    fwrite(&data_chunk_size, 4, 1, file);
 }
 
 int main(int argc, char *argv[]) {
     if (argc != 5) {
-        fprintf(stderr, "Usage: %s fs f L out_fn\n", argv[0]);
+        fprintf(stderr, "Usage: %s <sampling_rate> <frequency> <duration> <output_file>\n", argv[0]);
         return 1;
     }
 
     int sample_rate = atoi(argv[1]);
     double frequency = atof(argv[2]);
     double duration = atof(argv[3]);
-    const char *out_fn = argv[4];
+    const char *output_file = argv[4];
 
-    int num_samples = (int)(duration * sample_rate);
-
-    FILE *file = fopen(out_fn, "wb");
+    int num_samples = (int)(sample_rate * duration);
+    FILE *file = fopen(output_file, "wb");
     if (!file) {
-        perror("Error opening file");
+        perror("Unable to open file for writing");
         return 1;
     }
 
@@ -58,12 +58,15 @@ int main(int argc, char *argv[]) {
 
     for (int i = 0; i < num_samples; i++) {
         double t = (double)i / sample_rate;
-        int16_t sample_left = (int16_t)(32767 * sin(TWO_PI * frequency * t));
-        int16_t sample_right = (int16_t)(32767 * cos(TWO_PI * frequency * t));
-        fwrite(&sample_left, sizeof(int16_t), 1, file);
-        fwrite(&sample_right, sizeof(int16_t), 1, file);
+        short left_sample = (short)(32767 * sin(2 * PI * frequency * t));   // Sine wave for left channel
+        short right_sample = (short)(32767 * cos(2 * PI * frequency * t));  // Cosine wave for right channel
+
+        fwrite(&left_sample, sizeof(short), 1, file);
+        fwrite(&right_sample, sizeof(short), 1, file);
     }
 
     fclose(file);
+    printf("WAV file '%s' generated successfully.\n", output_file);
     return 0;
 }
+

@@ -1,68 +1,89 @@
-/* Problem 7 RC_filtering */
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <math.h>
 
-void apply_rc_filter(int16_t *data, int num_samples, float rc, float tau) {
-    float alpha = rc / (rc + tau);
-    int16_t y_prev = data[0];
+#define BUFFER_SIZE 1024
+#define PI 3.141592653589793
 
-    for (int i = 1; i < num_samples; i++) {
-        data[i] = (int16_t)(alpha * y_prev + (1 - alpha) * data[i]);
-        y_prev = data[i];
-    }
+typedef struct {
+    char riff[4];
+    int overall_size;
+    char wave[4];
+    char fmt_chunk_marker[4];
+    int length_of_fmt;
+    short format_type;
+    short channels;
+    int sample_rate;
+    int byterate;
+    short block_align;
+    short bits_per_sample;
+    char data_chunk_header[4];
+    int data_size;
+} WAVHeader;
+
+void read_wav_header(FILE *file, WAVHeader *header) {
+    fread(header, sizeof(WAVHeader), 1, file);
+}
+
+void write_wav_header(FILE *file, WAVHeader *header) {
+    fwrite(header, sizeof(WAVHeader), 1, file);
+}
+
+short apply_rc_filter(short input, double *prev_output, double alpha, double beta) {
+    double output = alpha * (*prev_output) + beta * input;
+    *prev_output = output;
+    return (short)output;
 }
 
 int main(int argc, char *argv[]) {
     if (argc != 3) {
-        fprintf(stderr, "Usage: %s in_fn out_fn\n", argv[0]);
+        fprintf(stderr, "Usage: %s <input_file> <output_file>\n", argv[0]);
         return 1;
     }
 
-    const char *in_fn = argv[1];
-    const char *out_fn = argv[2];
+    const char *input_file = argv[1];
+    const char *output_file = argv[2];
 
-    FILE *input = fopen(in_fn, "rb");
-    if (!input) {
-        perror("Error opening input file");
+    FILE *in_fp = fopen(input_file, "rb");
+    if (!in_fp) {
+        perror("Unable to open input file");
         return 1;
     }
 
-    int sample_rate;
-    fseek(input, 24, SEEK_SET);
-    fread(&sample_rate, sizeof(int), 1, input);
-    fseek(input, 44, SEEK_SET);
-
-    FILE *output = fopen(out_fn, "wb");
-    if (!output) {
-        perror("Error opening output file");
-        fclose(input);
+    FILE *out_fp = fopen(output_file, "wb");
+    if (!out_fp) {
+        perror("Unable to open output file");
+        fclose(in_fp);
         return 1;
     }
 
-    // Copy header
-    fseek(input, 0, SEEK_SET);
-    for (int i = 0; i < 44; i++) fputc(fgetc(input), output);
+    WAVHeader header;
+    read_wav_header(in_fp, &header);
+    write_wav_header(out_fp, &header);
 
-    // Set RC filter parameter
-    float rc = 1.0 / (2 * M_PI * 3000); 
-    float tau = 1.0 / sample_rate;
+    int sample_rate = header.sample_rate;
+    double RC = 1.0 / (2 * PI * 400); // 假設 RC 的值
+    double dt = 1.0 / sample_rate;
+    double alpha = RC / (RC + dt);      // 計算 alpha = RC / (RC + τ)
+    double beta = dt / (RC + dt);       // 計算 beta = τ / (τ + RC)
 
-    int16_t sample[2];
-    int num_samples = 0;
-    while (fread(sample, sizeof(int16_t), 2, input) == 2) {
-        apply_rc_filter(&sample[0], 1, rc, tau); // Apply filter to left channel
-        apply_rc_filter(&sample[1], 1, rc, tau); // Apply filter to right channel
+    short buffer[BUFFER_SIZE];
+    double prev_output_left = 0;
+    double prev_output_right = 0;
 
-        fwrite(sample, sizeof(int16_t), 2, output);
-        num_samples++;
+    size_t samples_read;
+    while ((samples_read = fread(buffer, sizeof(short), BUFFER_SIZE, in_fp)) > 0) {
+        for (size_t i = 0; i < samples_read; i += 2) {
+            buffer[i] = apply_rc_filter(buffer[i], &prev_output_left, alpha, beta);   // 左聲道濾波
+            if (header.channels > 1) { // 若為立體聲，處理右聲道
+                buffer[i + 1] = apply_rc_filter(buffer[i + 1], &prev_output_right, alpha, beta); // 右聲道濾波
+            }
+        }
+        fwrite(buffer, sizeof(short), samples_read, out_fp);
     }
 
-    fclose(input);
-    fclose(output);
+    fclose(in_fp);
+    fclose(out_fp);
+    printf("Filtered WAV file '%s' generated successfully.\n", output_file);
     return 0;
 }
-
-

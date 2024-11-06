@@ -1,50 +1,71 @@
-# Problem 7 plot_waveform #
-
 import os
-import wave
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.io import wavfile
+from scipy.fft import fft, fftfreq
 
-# Directory to save waveform images
-output_dir = "waveform_images"
-os.makedirs(output_dir, exist_ok=True)  # Create the directory if it doesn't exist
+def plot_wav(input_file):
+    # 讀取 WAV 檔案
+    sample_rate, data = wavfile.read(input_file)
+    
+    # 檢查是否為立體聲
+    if len(data.shape) == 2:
+        left_channel = data[:, 0]
+        right_channel = data[:, 1]
+    else:
+        left_channel = data
+        right_channel = None  # 單聲道沒有右聲道
 
-def plot_waveform(file_path):
-    # Open the .wav file
-    with wave.open(file_path, "rb") as wav_file:
-        # Extract parameters
-        n_channels, sampwidth, framerate, n_frames, comptype, compname = wav_file.getparams()
-        # Read frames and convert to numpy array
-        frames = wav_file.readframes(n_frames)
-        waveform = np.frombuffer(frames, dtype=np.int16)
-        
-        # Reshape for stereo files
-        if n_channels == 2:
-            waveform = waveform.reshape(-1, 2)
-        
-        # Time axis for plotting
-        time_axis = np.linspace(0, n_frames / framerate, num=n_frames)
+    # 創建資料夾以保存圖片
+    output_folder = "output_images"
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    
+    # 時域圖
+    time = np.linspace(0, len(left_channel) / sample_rate, num=len(left_channel))
 
-        # Plot waveform
-        plt.figure(figsize=(12, 4))
-        if n_channels == 2:
-            plt.plot(time_axis, waveform[:, 0], label="Left Channel")
-            plt.plot(time_axis, waveform[:, 1], label="Right Channel")
-            plt.legend()
-        else:
-            plt.plot(time_axis, waveform, label="Mono Channel")
-        
+    plt.figure(figsize=(12, 10))
+
+    # 左聲道時域圖
+    plt.subplot(4, 1, 1)
+    plt.plot(time, left_channel, color='blue')
+    plt.title("Left Channel - Time Domain")
+    plt.xlabel("Time [s]")
+    plt.ylabel("Amplitude")
+
+    # 右聲道時域圖（如果有右聲道）
+    if right_channel is not None:
+        plt.subplot(4, 1, 2)
+        plt.plot(time, right_channel, color='green')
+        plt.title("Right Channel - Time Domain")
         plt.xlabel("Time [s]")
         plt.ylabel("Amplitude")
-        plt.title(f"Waveform of {os.path.basename(file_path)}")
-        
-        # Save the plot
-        output_path = os.path.join(output_dir, f"{os.path.splitext(os.path.basename(file_path))[0]}.png")
-        plt.savefig(output_path)
-        plt.close()
-        print(f"Waveform saved to: {output_path}")
+    
+    # 左聲道頻域圖
+    yf_left = fft(left_channel)
+    xf = fftfreq(len(left_channel), 1 / sample_rate)
+    plt.subplot(4, 1, 3)
+    plt.plot(xf[:len(xf) // 2], np.abs(yf_left[:len(yf_left) // 2]), color='red')
+    plt.title("Left Channel - Frequency Domain")
+    plt.xlabel("Frequency [Hz]")
+    plt.ylabel("Magnitude")
 
-# Example usage: list all .wav files in the current directory and plot each
-for file_name in os.listdir("."):
-    if file_name.endswith(".wav"):
-        plot_waveform(file_name)
+    # 右聲道頻域圖（如果有右聲道）
+    if right_channel is not None:
+        yf_right = fft(right_channel)
+        plt.subplot(4, 1, 4)
+        plt.plot(xf[:len(xf) // 2], np.abs(yf_right[:len(yf_right) // 2]), color='orange')
+        plt.title("Right Channel - Frequency Domain")
+        plt.xlabel("Frequency [Hz]")
+        plt.ylabel("Magnitude")
+
+    # 儲存圖像為 PNG 檔案
+    output_file = os.path.join(output_folder, input_file.replace(".wav", "_stereo_plot.png"))
+    plt.tight_layout()
+    plt.savefig(output_file)
+    print(f"Plot saved as {output_file}")
+    plt.show()
+
+if __name__ == "__main__":
+    input_file = "ffn.wav"  # 修改成您實際的音訊檔名稱
+    plot_wav(input_file)
