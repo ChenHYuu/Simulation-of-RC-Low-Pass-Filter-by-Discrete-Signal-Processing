@@ -98,13 +98,13 @@ def plot_wav_comparison(wav1, wav2):
     plt.legend()
 
     # 儲存圖像為 PNG 檔案
-    output_file = os.path.join(output_folder, "comparison_stereo_plot.png")
+    output_file = os.path.join(output_folder, "4000_100.png")
     plt.tight_layout()
     plt.savefig(output_file)
     print(f"Comparison plot saved as {output_file}")
     plt.show()
 
 if __name__ == "__main__":
-    wav1 = "fn.wav"  # 第一個音訊檔案名稱
-    wav2 = "ffn.wav"   # 第二個音訊檔案名稱
+    wav1 = "in_fn_4000_100.wav"  # 第一個音訊檔案名稱
+    wav2 = "out_fn_4000_100.wav"   # 第二個音訊檔案名稱
     plot_wav_comparison(wav1, wav2)
