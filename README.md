@@ -1,6 +1,8 @@
 # DSP Assignment-1
 Simulation of RC Low-Pass Filter by Discrete Signal Processing
 
+hackmd：https://hackmd.io/@9KvvH16wQKCNkiQnydFUsQ/DSP_Assignment_1
+
 ## 學習目標
 1. 了解Linear Constant-Coefficient Difference Equation (LCCDE) 的由來以及原理
 2. 對於 Sampling Rate 有初步的認識
@@ -374,5 +376,454 @@ $$
 ### **題目**
 Simulate the filtering of Problem 4 with `eq.(8)` by C programs. Please discuss the results made by the sampling rates of 4000Hz, 8000Hz, and 16000Hz.
 ### **程式碼**
+#### `sine_wav_gen.c`
+完整程式碼：
+```c=
+/* Problem 7 sine_wav_gen */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#define PI 3.14159265358979323846
+
+void write_wav_header(FILE *file, int sample_rate, int num_samples) {
+    int byte_rate = sample_rate * 2 * 2;
+    int block_align = 2 * 2;
+    int data_chunk_size = num_samples * 2 * 2;
+    int file_size = 36 + data_chunk_size;
+
+    fwrite("RIFF", 1, 4, file);
+    fwrite(&file_size, 4, 1, file);
+    fwrite("WAVE", 1, 4, file);
+
+    fwrite("fmt ", 1, 4, file);
+    int subchunk1_size = 16;
+    short audio_format = 1;
+    short num_channels = 2;
+    fwrite(&subchunk1_size, 4, 1, file);
+    fwrite(&audio_format, 2, 1, file);
+    fwrite(&num_channels, 2, 1, file);
+    fwrite(&sample_rate, 4, 1, file);
+    fwrite(&byte_rate, 4, 1, file);
+    fwrite(&block_align, 2, 1, file);
+    short bits_per_sample = 16;
+    fwrite(&bits_per_sample, 2, 1, file);
+
+    fwrite("data", 1, 4, file);
+    fwrite(&data_chunk_size, 4, 1, file);
+}
+
+int main(int argc, char *argv[]) {
+    if (argc != 5) {
+        fprintf(stderr, "Usage: %s <sampling_rate> <frequency> <duration> <output_file>\n", argv[0]);
+        return 1;
+    }
+
+    int sample_rate = atoi(argv[1]);
+    double frequency = atof(argv[2]);
+    double duration = atof(argv[3]);
+    const char *output_file = argv[4];
+
+    int num_samples = (int)(sample_rate * duration);
+    FILE *file = fopen(output_file, "wb");
+    if (!file) {
+        perror("Unable to open file for writing");
+        return 1;
+    }
+
+    write_wav_header(file, sample_rate, num_samples);
+
+    for (int i = 0; i < num_samples; i++) {
+        double t = (double)i / sample_rate;
+        short left_sample = (short)(32767 * sin(2 * PI * frequency * t));
+        short right_sample = (short)(32767 * cos(2 * PI * frequency * t));
+
+        fwrite(&left_sample, sizeof(short), 1, file);
+        fwrite(&right_sample, sizeof(short), 1, file);
+    }
+
+    fclose(file);
+    printf("WAV file '%s' generated successfully.\n", output_file);
+    return 0;
+}
+```
+**Flow Chart：**
+```mermaid
+flowchart TD
+    A[開始] --> B[解析命令列參數: 採樣率, 頻率, 持續時間, 檔案名稱]
+    B --> C[計算樣本數 num_samples]
+    C --> D[打開輸出檔案]
+    D --> E[寫入 WAV 檔案標頭]
+    
+    F -- 所有樣本生成完成 --> K[關閉檔案]
+    K --> M[結束程式]
+
+    E --> F[迴圈產生音訊數據]
+    F --> G[計算當前樣本時間 t = i / sample_rate]
+    G --> H[計算左聲道樣本值 left_sample]
+    H --> I[計算右聲道樣本值 right_sample]
+    I --> J[將 left_sample 和 right_sample 寫入檔案]
+    J --> F[處理下一個樣本]
+```
+**1. include檔案與定義**
+```c=
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#define PI 3.14159265358979323846
+```
+* `stdio.h` ：用於檔案輸入/輸出操作。
+* `stdlib.h` ：用於 `atoi` 和 `atof` 函數。
+* `math.h` ：提供數學函數，如 `sin` 和 `cos`。
+* `PI` ：定義了 π 的近似值，用於`sin` 和 `cos`的計算。
+
+**2. write_wav_header 函數**
+```c=+
+void write_wav_header(FILE *file, int sample_rate, int num_samples) {
+    int byte_rate = sample_rate * 2 * 2; // 2 channels, 2 bytes per sample
+    int block_align = 2 * 2;
+    int data_chunk_size = num_samples * 2 * 2;
+    int file_size = 36 + data_chunk_size;
+
+    // RIFF header
+    fwrite("RIFF", 1, 4, file);
+    fwrite(&file_size, 4, 1, file);
+    fwrite("WAVE", 1, 4, file);
+
+    // fmt subchunk
+    fwrite("fmt ", 1, 4, file);
+    int subchunk1_size = 16;
+    short audio_format = 1;
+    short num_channels = 2;
+    fwrite(&subchunk1_size, 4, 1, file);
+    fwrite(&audio_format, 2, 1, file);
+    fwrite(&num_channels, 2, 1, file);
+    fwrite(&sample_rate, 4, 1, file);
+    fwrite(&byte_rate, 4, 1, file);
+    fwrite(&block_align, 2, 1, file);
+    short bits_per_sample = 16;
+    fwrite(&bits_per_sample, 2, 1, file);
+
+    // data subchunk
+    fwrite("data", 1, 4, file);
+    fwrite(&data_chunk_size, 4, 1, file);
+}
+```
+>[!Note]WAV 檔詳細介紹請參考恭緯學長的文件
+>[WAVE PCM 聲音文件格式](https://hackmd.io/@will1860/wave%E6%AA%94header%E8%AA%AA%E6%98%8E)
+
+這個函數用於生成 WAV 音檔的標頭。WAV 音檔格式需要特定的標頭，包含音訊格式和參數資訊。
+
+**3. 主程式**
+```c=+
+int main(int argc, char *argv[]) {
+    if (argc != 5) {
+        fprintf(stderr, "Usage: %s <sampling_rate> <frequency> <duration> <output_file>\n", argv[0]);
+        return 1;
+    }
+
+    int sample_rate = atoi(argv[1]);
+    double frequency = atof(argv[2]);
+    double duration = atof(argv[3]);
+    const char *output_file = argv[4];
+
+    int num_samples = (int)(sample_rate * duration);
+    FILE *file = fopen(output_file, "wb");
+    if (!file) {
+        perror("Unable to open file for writing");
+        return 1;
+    }
+
+    write_wav_header(file, sample_rate, num_samples);
+```
+* `sample_rate`：將第一個參數轉換為整數，表示採樣率。
+* `frequency`：將第二個參數轉換為浮點數，表示波的頻率。
+* `duration`：將第三個參數轉換為浮點數，表示音檔的持續時間。
+* `output_file`：第四個參數為輸出wav檔案的名稱。
+* `num_samples`：計算所需的樣本數，等於 `sample_rate * duration`。
+* `file`：以二進位模式打開輸出檔案。若打開失敗，則顯示錯誤訊息並返回錯誤。
+
+調用 `write_wav_header` 函數來寫入 WAV 音檔的標頭。
+
+**4. 產生音訊數據並寫入檔案**
+```c=+
+    for (int i = 0; i < num_samples; i++) {
+        double t = (double)i / sample_rate;
+        short left_sample = (short)(32767 * sin(2 * PI * frequency * t));   // Sine wave for left channel
+        short right_sample = (short)(32767 * cos(2 * PI * frequency * t));  // Cosine wave for right channel
+
+        fwrite(&left_sample, sizeof(short), 1, file);
+        fwrite(&right_sample, sizeof(short), 1, file);
+    }
+```
+* `t`：計算當前樣本時間點 $t = \frac{i}{\text{sample_rate}}$ 。
+* `left_sample`：左聲道的樣本值，根據 sin 波公式計算，範圍在 -32767 到 32767 之間。
+* `right_sample`：右聲道的樣本值，根據 cos 波公式計算，範圍也在 -32767 到 32767 之間。
+* `fwrite`：將 `left_sample` 和 `right_sample` 分別寫入檔案，形成立體聲輸出。
+
+**5. 關閉檔案並結束程式**
+```c=+
+    fclose(file);
+    printf("WAV file '%s' generated successfully.\n", output_file);
+    return 0;
+}
+```
+
+___
+
+#### `RC_filtering.c`
+```c=
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#define BUFFER_SIZE 1024
+#define PI 3.141592653589793
+
+typedef struct {
+    char riff[4];
+    int overall_size;
+    char wave[4];
+    char fmt_chunk_marker[4];
+    int length_of_fmt;
+    short format_type;
+    short channels;
+    int sample_rate;
+    int byterate;
+    short block_align;
+    short bits_per_sample;
+    char data_chunk_header[4];
+    int data_size;
+} WAVHeader;
+
+void read_wav_header(FILE *file, WAVHeader *header) {
+    fread(header, sizeof(WAVHeader), 1, file);
+}
+
+void write_wav_header(FILE *file, WAVHeader *header) {
+    fwrite(header, sizeof(WAVHeader), 1, file);
+}
+
+short apply_rc_filter(short input, double *prev_output, double alpha, double beta) {
+    double output = alpha * (*prev_output) + beta * input;
+    *prev_output = output;
+    return (short)output;
+}
+
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s <input_file> <output_file>\n", argv[0]);
+        return 1;
+    }
+
+    const char *input_file = argv[1];
+    const char *output_file = argv[2];
+
+    FILE *in_fp = fopen(input_file, "rb");
+    if (!in_fp) {
+        perror("Unable to open input file");
+        return 1;
+    }
+
+    FILE *out_fp = fopen(output_file, "wb");
+    if (!out_fp) {
+        perror("Unable to open output file");
+        fclose(in_fp);
+        return 1;
+    }
+
+    WAVHeader header;
+    read_wav_header(in_fp, &header);
+    write_wav_header(out_fp, &header);
+
+    int sample_rate = header.sample_rate;
+    double RC = 1.0 / (2 * PI * 400);
+    double dt = 1.0 / sample_rate;
+    double alpha = RC / (RC + dt);
+    double beta = dt / (RC + dt);
+
+    short buffer[BUFFER_SIZE];
+    double prev_output_left = 0;
+    double prev_output_right = 0;
+
+    size_t samples_read;
+    while ((samples_read = fread(buffer, sizeof(short), BUFFER_SIZE, in_fp)) > 0) {
+        for (size_t i = 0; i < samples_read; i += 2) {
+            buffer[i] = apply_rc_filter(buffer[i], &prev_output_left, alpha, beta);
+            buffer[i + 1] = apply_rc_filter(buffer[i + 1], &prev_output_right, alpha, beta);
+        }
+        fwrite(buffer, sizeof(short), samples_read, out_fp);
+    }
+
+    fclose(in_fp);
+    fclose(out_fp);
+    printf("Filtered WAV file '%s' generated successfully.\n", output_file);
+    return 0;
+}
+```
+
+**Flow Chart**
+```mermaid
+flowchart TD
+    A[開始] --> B[解析命令列參數: 輸入檔案和輸出檔案名稱]
+    B --> C[打開輸入檔案 in_fp 和 輸出檔案 out_fp]
+    C --> D[讀取並寫入 WAV 檔案標頭]
+
+    D --> E[計算 RC 濾波器參數 alpha 和 beta]
+    E --> F[初始化 prev_output_left 和 prev_output_right]
+
+    F --> G[迴圈讀取 BUFFER_SIZE 大小的音訊數據]
+    G --> H[用 RC 濾波器處理左/右聲道樣本]
+    H --> K
+    K --> G[讀取下一組音訊數據]
+
+    G -- 所有音訊數據處理完成 --> L[關閉輸入和輸出檔案]
+    L --> M[顯示檔案生成成功訊息]
+    M --> N[結束程式]
+```
+
+**1. include 檔案與定義**
+```c=+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#define BUFFER_SIZE 1024
+#define PI 3.141592653589793
+```
+* `stdio.h` ：用於檔案輸入/輸出操作。
+* `stdlib.h` ：用於 `atoi` 和 `atof` 函數。
+* `math.h` ：提供數學函數，如 `sin` 和 `cos`。
+* `BUFFER_SIZE`：一次讀取的樣本數量，設定為 1024。
+* `PI`：定義 π 的值，用於 RC 濾波器的計算。
+
+**2. WAV 檔案 Header 結構體**
+```c=+
+typedef struct {
+    char riff[4];
+    int overall_size;
+    char wave[4];
+    char fmt_chunk_marker[4];
+    int length_of_fmt;
+    short format_type;
+    short channels;
+    int sample_rate;
+    int byterate;
+    short block_align;
+    short bits_per_sample;
+    char data_chunk_header[4];
+    int data_size;
+} WAVHeader;
+```
+結構體表示 WAV 檔案的標頭，用於存取音訊的基本資訊，如採樣率、聲道數量、每樣本位元數等。
+
+>[!Note]WAV 檔詳細介紹請參考恭緯學長的文件
+>[WAVE PCM 聲音文件格式](https://hackmd.io/@will1860/wave%E6%AA%94header%E8%AA%AA%E6%98%8E)
+
+**3. read_wav_header 和 write_wav_header 函數**
+```c=+
+void read_wav_header(FILE *file, WAVHeader *header) {
+    fread(header, sizeof(WAVHeader), 1, file);
+}
+
+void write_wav_header(FILE *file, WAVHeader *header) {
+    fwrite(header, sizeof(WAVHeader), 1, file);
+```
+* `read_wav_header`：從輸入檔案讀取 WAV Header 並存入 `header` 結構體。
+* `write_wav_header`：將 `header` 結構體中的標頭資訊寫入輸出檔案。
+
+**4. apply_rc_filter 函數**
+```c=+
+short apply_rc_filter(short input, double *prev_output, double alpha, double beta) {
+    double output = alpha * (*prev_output) + beta * input;
+    *prev_output = output;
+    return (short)output;
+}
+```
+這個函數用來實現 RC 濾波器的計算，公式如下：
+$$
+y[n] = \frac{RC}{RC + \tau} y[n-1] + \frac{\tau}{\tau + RC} x[n] \tag{5-1}
+$$
+* `alpha` 和 `beta` 是濾波器參數，分別等於 `RC / (RC + dt)` 和 `dt / (RC + dt)`。
+* `input` 是當前樣本值。
+* `prev_output` 用於儲存上一個濾波輸出值，用來計算當前輸出。
+
+**5. 主程式**
+```c=+
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s <input_file> <output_file>\n", argv[0]);
+        return 1;
+    }
+
+    const char *input_file = argv[1];
+    const char *output_file = argv[2];
+
+    FILE *in_fp = fopen(input_file, "rb");
+    if (!in_fp) {
+        perror("Unable to open input file");
+        return 1;
+    }
+
+    FILE *out_fp = fopen(output_file, "wb");
+    if (!out_fp) {
+        perror("Unable to open output file");
+        fclose(in_fp);
+        return 1;
+    }
+
+    WAVHeader header;
+    read_wav_header(in_fp, &header);
+    write_wav_header(out_fp, &header);
+```
+主函數處理檔案打開、濾波器初始化、數據處理和檔案寫入操作。
+* 檢查命令列參數的數量是否正確。如果參數不正確，顯示用法並結束程式。
+* 打開輸入和輸出檔案。輸入檔案以二進位讀取模式打開，輸出檔案以二進位寫入模式打開。
+* 從輸入檔案讀取 WAV 標頭並將其寫入輸出檔案，以保持檔案格式。
+
+**6. 濾波器參數計算**
+```c=+
+    int sample_rate = header.sample_rate;
+    double RC = 1.0 / (2 * PI * 400);
+    double dt = 1.0 / sample_rate;
+    double alpha = RC / (RC + dt);
+    double beta = dt / (RC + dt);
+```
+* `RC`：RC 濾波器的時間常數，這裡假設 400 Hz 的截止頻率。
+* `dt`：每個樣本的時間間隔。
+* `alpha` 和 `beta` 是濾波器參數，分別等於 `RC / (RC + dt)` 和 `dt / (RC + dt)`。
+
+**7. 讀取、濾波並寫入音訊數據**
+```c=+
+    short buffer[BUFFER_SIZE];
+    double prev_output_left = 0;
+    double prev_output_right = 0;
+
+    size_t samples_read;
+    while ((samples_read = fread(buffer, sizeof(short), BUFFER_SIZE, in_fp)) > 0) {
+        for (size_t i = 0; i < samples_read; i += 2) {
+            buffer[i] = apply_rc_filter(buffer[i], &prev_output_left, alpha, beta);
+            buffer[i + 1] = apply_rc_filter(buffer[i + 1], &prev_output_right, alpha, beta);
+        }
+        fwrite(buffer, sizeof(short), samples_read, out_fp);
+    }
+```
+* `buffer`：暫存區，用於儲存從檔案中讀取的音訊數據。
+* `prev_output_left` 和 `prev_output_right`：分別記錄左右聲道的上一個濾波輸出。
+* 迴圈中，每次從輸入檔案中讀取一組 `BUFFER_SIZE` 的樣本。
+* 對於每組樣本，將左右聲道分別應用 RC 濾波器，濾波後的樣本再寫入輸出檔案。
+
+**8. 關閉檔案並結束程式**
+```c=+
+    fclose(in_fp);
+    fclose(out_fp);
+    printf("Filtered WAV file '%s' generated successfully.\n", output_file);
+    return 0;
+}
+```
+___
+
+#### 結果
 
