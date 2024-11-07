@@ -1,8 +1,6 @@
 # DSP Assignment-1
 Simulation of RC Low-Pass Filter by Discrete Signal Processing
 
-hackmd：https://hackmd.io/@9KvvH16wQKCNkiQnydFUsQ/DSP_Assignment_1
-
 ## 學習目標
 1. 了解Linear Constant-Coefficient Difference Equation (LCCDE) 的由來以及原理
 2. 對於 Sampling Rate 有初步的認識
@@ -825,5 +823,64 @@ int main(int argc, char *argv[]) {
 ```
 ___
 
-#### 結果
+### 結果
 
+fs = 4000, f = 100
+![4000_100](https://hackmd.io/_uploads/B1LxDQ5bJg.png)
+
+
+fs = 4000, f = 400
+![4000_400](https://hackmd.io/_uploads/BJgyDmqZyx.png)
+
+fs = 4000, f = 3000
+![4000_3000](https://hackmd.io/_uploads/BydWw75WJg.png)
+
+這三張圖比較了不同頻率（100 Hz、400 Hz 和 3000 Hz）的音訊信號在經過濾波前後的變化，採樣率（fs）都是 4000 Hz。圖中的每個部分展示了左、右聲道在時間域、振幅頻譜和相位頻譜上的比較。
+
+fs = 4000 Hz
+| 頻率 | 波形 | 振幅-頻譜 | 相位-頻譜 |
+| ------ | ------ | ------- | --- |
+| 100 Hz | 波形幾乎重合 | 振幅頻譜幾乎無變化 | 100 Hz的地方基本一致 |
+| 400 Hz | 波形略有不同但仍接近 | 輕微衰減 | 400 Hz的地方輕微相位變化 |
+| 3000 Hz | 波形振幅大幅下降 | 顯著衰減；由於頻率高於 fs/2 所以混跌於 1000 Hz 附近 | 顯著相位變化並顯示混疊於1000 Hz |
+
+
+
+---
+
+fs = 8000, f = 100
+![8000_100](https://hackmd.io/_uploads/HJIpAXcZkl.png)
+
+fs = 8000, f = 400
+![8000_400](https://hackmd.io/_uploads/S1tp0Q5-1l.png)
+
+fs = 8000, f = 3000
+![8000_3000](https://hackmd.io/_uploads/ByhpCm9Zkl.png)
+
+fs = 8000 Hz
+| 頻率 | 波形 | 振幅-頻譜 | 相位-頻譜 |
+| ------ | ------ | ------- | --- |
+| 100 Hz | 波形幾乎重合 | 振幅頻譜幾乎無變化 | 100 Hz的地方基本一致 |
+| 400 Hz | 波形略有不同但仍接近 | 輕微衰減 | 400 Hz的地方輕微相位變化 |
+| 3000 Hz | 波形振幅大幅下降 | 振幅顯著衰減，3000 Hz 被大幅削弱 | 3000 Hz的地方相位變化顯著，顯示高頻衰減效果 |
+
+---
+
+fs = 16000, f = 100
+![16000_100](https://hackmd.io/_uploads/rJucWE9ZJx.png)
+
+fs = 16000, f = 400
+![16000_400](https://hackmd.io/_uploads/rk9cbEqZyg.png)
+
+fs = 16000, f = 3000
+![16000_3000](https://hackmd.io/_uploads/Ska5WV9-kg.png)
+
+fs = 16000 Hz
+| 頻率 | 波形 | 振幅-頻譜 | 相位-頻譜 |
+| ------ | ------ | ------- | --- |
+| 100 Hz | 波形幾乎重合 | 振幅頻譜幾乎無變化 | 100 Hz的地方基本一致 |
+| 400 Hz | 波形略有不同但仍接近 | 輕微衰減 | 400 Hz的地方輕微相位變化 |
+| 3000 Hz | 波形振幅大幅下降 | 振幅顯著衰減 | 3000 Hz的地方相位變化顯著，顯示高頻衰減效果 |
+
+**結論**
+從這些圖中可以看出，取樣頻率與訊號頻率的關係對訊號的準確度有影響。當訊號通過 RC 低通濾波器時，只要訊號頻率超過濾波器的截止頻率，即使取樣頻率不同，都會被顯著衰減。這表示 RC 濾波器能有效濾除高頻成分，削弱頻率超過截止點的訊號，並且在設計系統時需注意取樣頻率必須足夠高，以避免混疊現象。
