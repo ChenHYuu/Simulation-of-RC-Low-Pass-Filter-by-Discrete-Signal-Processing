@@ -9,22 +9,13 @@ def plot_wav_comparison(wav1, wav2):
     sample_rate1, data1 = wavfile.read(wav1)
     sample_rate2, data2 = wavfile.read(wav2)
 
-    # 檢查是否為立體聲
-    if len(data1.shape) == 2:
-        left_channel1 = data1[:, 0]
-        right_channel1 = data1[:, 1]
-    else:
-        left_channel1 = data1
-        right_channel1 = None  # 單聲道沒有右聲道
+    left_channel1 = data1[:, 0]
+    right_channel1 = data1[:, 1]
 
-    if len(data2.shape) == 2:
-        left_channel2 = data2[:, 0]
-        right_channel2 = data2[:, 1]
-    else:
-        left_channel2 = data2
-        right_channel2 = None
-
-    # 創建資料夾以保存圖片
+    left_channel2 = data2[:, 0]
+    right_channel2 = data2[:, 1]
+    
+    # 創建資料夾保存圖片
     output_folder = "output_images"
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -55,7 +46,7 @@ def plot_wav_comparison(wav1, wav2):
     # 開始繪製比較圖
     plt.figure(figsize=(15, 20))
 
-    # 左聲道時域波形比較
+    # 時域波形比較
     plt.subplot(5, 2, 1)
     plt.plot(time1, left_channel1, color='blue', label=f"{wav1} Left Channel")
     plt.plot(time2, left_channel2, color='red', label=f"{wav2} Left Channel")
@@ -72,7 +63,7 @@ def plot_wav_comparison(wav1, wav2):
     plt.ylabel("Amplitude")
     plt.legend()
 
-    # 左聲道振幅比較
+    # 振幅比較
     plt.subplot(5, 2, 3)
     plt.plot(xf1[:len(amplitude_left1)], amplitude_left1, color='blue', label=f"{wav1} Left Channel")
     plt.plot(xf2[:len(amplitude_left2)], amplitude_left2, color='red', label=f"{wav2} Left Channel")
@@ -89,7 +80,7 @@ def plot_wav_comparison(wav1, wav2):
     plt.ylabel("Amplitude")
     plt.legend()
 
-    # 左聲道相位比較
+    # 相位比較
     plt.subplot(5, 2, 5)
     plt.plot(xf1[:len(phase_left1)], phase_left1, color='blue', label=f"{wav1} Left Channel")
     plt.plot(xf2[:len(phase_left2)], phase_left2, color='red', label=f"{wav2} Left Channel")

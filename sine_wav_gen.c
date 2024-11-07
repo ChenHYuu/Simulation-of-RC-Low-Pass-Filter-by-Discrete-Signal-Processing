@@ -7,17 +7,15 @@
 #define PI 3.14159265358979323846
 
 void write_wav_header(FILE *file, int sample_rate, int num_samples) {
-    int byte_rate = sample_rate * 2 * 2; // 2 channels, 2 bytes per sample
+    int byte_rate = sample_rate * 2 * 2;
     int block_align = 2 * 2;
     int data_chunk_size = num_samples * 2 * 2;
     int file_size = 36 + data_chunk_size;
 
-    // RIFF header
     fwrite("RIFF", 1, 4, file);
     fwrite(&file_size, 4, 1, file);
     fwrite("WAVE", 1, 4, file);
 
-    // fmt subchunk
     fwrite("fmt ", 1, 4, file);
     int subchunk1_size = 16;
     short audio_format = 1;
@@ -31,7 +29,6 @@ void write_wav_header(FILE *file, int sample_rate, int num_samples) {
     short bits_per_sample = 16;
     fwrite(&bits_per_sample, 2, 1, file);
 
-    // data subchunk
     fwrite("data", 1, 4, file);
     fwrite(&data_chunk_size, 4, 1, file);
 }
@@ -58,9 +55,9 @@ int main(int argc, char *argv[]) {
 
     for (int i = 0; i < num_samples; i++) {
         double t = (double)i / sample_rate;
-        short left_sample = (short)(32767 * sin(2 * PI * frequency * t));   // Sine wave for left channel
-        short right_sample = (short)(32767 * cos(2 * PI * frequency * t));  // Cosine wave for right channel
-
+        short left_sample = (short)(32767 * sin(2 * PI * frequency * t));   
+        short right_sample = (short)(32767 * cos(2 * PI * frequency * t));  
+        
         fwrite(&left_sample, sizeof(short), 1, file);
         fwrite(&right_sample, sizeof(short), 1, file);
     }

@@ -74,8 +74,8 @@ int main(int argc, char *argv[]) {
     size_t samples_read;
     while ((samples_read = fread(buffer, sizeof(short), BUFFER_SIZE, in_fp)) > 0) {
         for (size_t i = 0; i < samples_read; i += 2) {
-            buffer[i] = apply_rc_filter(buffer[i], &prev_output_left, alpha, beta);   // 左聲道濾波
-            buffer[i + 1] = apply_rc_filter(buffer[i + 1], &prev_output_right, alpha, beta); // 右聲道濾波
+            buffer[i] = apply_rc_filter(buffer[i], &prev_output_left, alpha, beta); 
+            buffer[i + 1] = apply_rc_filter(buffer[i + 1], &prev_output_right, alpha, beta); 
         }
         fwrite(buffer, sizeof(short), samples_read, out_fp);
     }
