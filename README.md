@@ -1,6 +1,8 @@
 # DSP Assignment-1
 Simulation of RC Low-Pass Filter by Discrete Signal Processing
 
+hackmd：https://hackmd.io/@9KvvH16wQKCNkiQnydFUsQ/r1fL87KZ1x
+
 ## 學習目標
 1. 了解Linear Constant-Coefficient Difference Equation (LCCDE) 的由來以及原理
 2. 對於 Sampling Rate 有初步的認識
