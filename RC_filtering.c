@@ -62,10 +62,10 @@ int main(int argc, char *argv[]) {
     write_wav_header(out_fp, &header);
 
     int sample_rate = header.sample_rate;
-    double RC = 1.0 / (2 * PI * 400); // 假設 RC 的值
+    double RC = 1.0 / (2 * PI * 400);
     double dt = 1.0 / sample_rate;
-    double alpha = RC / (RC + dt);      // 計算 alpha = RC / (RC + τ)
-    double beta = dt / (RC + dt);       // 計算 beta = τ / (τ + RC)
+    double alpha = RC / (RC + dt);
+    double beta = dt / (RC + dt);
 
     short buffer[BUFFER_SIZE];
     double prev_output_left = 0;
@@ -75,9 +75,7 @@ int main(int argc, char *argv[]) {
     while ((samples_read = fread(buffer, sizeof(short), BUFFER_SIZE, in_fp)) > 0) {
         for (size_t i = 0; i < samples_read; i += 2) {
             buffer[i] = apply_rc_filter(buffer[i], &prev_output_left, alpha, beta);   // 左聲道濾波
-            if (header.channels > 1) { // 若為立體聲，處理右聲道
-                buffer[i + 1] = apply_rc_filter(buffer[i + 1], &prev_output_right, alpha, beta); // 右聲道濾波
-            }
+            buffer[i + 1] = apply_rc_filter(buffer[i + 1], &prev_output_right, alpha, beta); // 右聲道濾波
         }
         fwrite(buffer, sizeof(short), samples_read, out_fp);
     }
