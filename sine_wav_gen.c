@@ -7,16 +7,17 @@
 #define PI 3.14159265358979323846
 
 void write_wav_header(FILE *file, int sample_rate, int num_samples) {
-    int byte_rate = sample_rate * 2 * 2;
-    int block_align = 2 * 2;
-    int data_chunk_size = num_samples * 2 * 2;
-    int file_size = 36 + data_chunk_size;
+    int byte_rate = sample_rate * 2 * 2;  // 計算每秒的byte數（取樣率 * 聲道數 * 每樣本位元數 / 8）
+    int block_align = 2 * 2;  // 計算每一樣本的byte數（聲道數 * 每樣本位元數 / 8）
+    int data_chunk_size = num_samples * 2 * 2;  // 計算音訊資料的byte大小（樣本數 * 聲道數 * 每樣本位元數 / 8）
+    int file_size = 36 + data_chunk_size;  // 計算 RIFF 檔案大小（固定值 36 + 音訊資料區塊大小）
 
-    fwrite("RIFF", 1, 4, file);
-    fwrite(&file_size, 4, 1, file);
-    fwrite("WAVE", 1, 4, file);
+    // 用法ferite(要放的資料, {多少}byte, 個數, 寫入檔案)
+    fwrite("RIFF", 1, 4, file);              // "RIFF"
+    fwrite(&file_size, 4, 1, file);          // Chunk size = 36 + 音訊資料大小
+    fwrite("WAVE", 1, 4, file);              // "WAVE"
 
-    fwrite("fmt ", 1, 4, file);
+    fwrite("fmt ", 1, 4, file);              // "fmt "
     int subchunk1_size = 16;
     short audio_format = 1;
     short num_channels = 2;
