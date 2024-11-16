@@ -15,51 +15,88 @@ hackmd：https://hackmd.io/@9KvvH16wQKCNkiQnydFUsQ/r1fL87KZ1x
 If $x(t) = e^{j \Omega t}$ ,find $y(t)$ .Nont that $y(t)$ can be expressed by $y(t) = H(\Omega) e^{j \Omega t}$ where $H(\Omega)$ is a function of $\Omega$ with parameters of $R$ and $C$ .
 
 ### **解題步驟**
-根據題意，假設 $x(t) = e^{j \Omega t}$ ，要找 $y(t)$：
-$$
-y(t) = H(\Omega) e^{j \Omega t} \tag{1-1}
-$$
-先求 $H(\Omega)$
-
 由題目的 `eq.(3)` 可以知道：
 $$
 X(t) = RC \frac{d y(t)}{d t} + y(t) \tag{1-2}
 $$
 
-將 $x(t) = e^{j \Omega t}$ 和 $y(t) = H(\Omega) e^{j \Omega t}$ 帶入方程式：
+**1. Homogeneous Solution**
+
 $$
-e^{j \Omega t} = RC \frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right) + H(\Omega) e^{j \Omega t} \tag{1-3}
+RC \frac{d y_h(t)}{d t} + y_h(t) = 0 \tag{1-3}
+$$
+
+設 $y_h(t) = e^{a t}$ , 代入微分方程：
+
+$$
+RC \frac{d}{d t}e^{a t} + e^{a t} = 0 \tag{1-4}
+$$
+
+展開：
+
+$$
+RCae^{a t} + e^{a t} = 0 \tag{1-6}
+$$
+
+因 $e^{a t} \not= 0$ ，可消去 $e^{a t}$
+
+$$
+RCa+1 = 0 \tag{1-7}
+$$
+
+$$
+a = -\frac{1}{RC} \tag{1-8}
+$$
+
+齊次解為：
+
+$$
+y_h(t) = Ae^{-\frac{1}{RC}}, A為常數 \tag{1-9}
+$$
+
+**2. Particular Solution**
+
+假設 $x(t) = e^{j \Omega t}$：
+$$
+y_p(t) = H(\Omega) e^{j \Omega t} \tag{1-10}
+$$
+先求 $H(\Omega)$：
+
+將 $x(t) = e^{j \Omega t}$ 和 $y_p(t) = H(\Omega) e^{j \Omega t}$ 帶入方程式：
+$$
+e^{j \Omega t} = RC \frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right) + H(\Omega) e^{j \Omega t} \tag{1-11}
 $$
 
 先求 $\frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right)$：
 $$
-\frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right) = H(\Omega) \cdot j \Omega e^{j \Omega t} \tag{1-4}
+\frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right) = H(\Omega) \cdot j \Omega e^{j \Omega t} \tag{1-12}
 $$
 
-再將算出來的 $\frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right)$ 帶回 `eq.(1-3)` 可以得到：
+再將算出來的 $\frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right)$ 帶回 `eq.(1-11)` 可以得到：
 $$
-e^{j \Omega t} = RC \cdot H(\Omega) \cdot j \Omega e^{j \Omega t} + H(\Omega) e^{j \Omega t} \tag{1-5}
+e^{j \Omega t} = RC \cdot H(\Omega) \cdot j \Omega e^{j \Omega t} + H(\Omega) e^{j \Omega t} \tag{1-13}
 $$
 
 因為兩邊都有 $e^{j \Omega t}$，可以消去，最後得到：
 $$
-1 = (RC \cdot j \Omega + 1) H(\Omega) \tag{1-6}
+1 = (RC \cdot j \Omega + 1) H(\Omega) \tag{1-14}
 $$
 
 最後化簡之後可以得到 $H(\Omega)$ ：
 $$
-H(\Omega) = \frac{1}{RC \cdot j \Omega + 1} \tag{1-7}
+H(\Omega) = \frac{1}{RC \cdot j \Omega + 1} \tag{1-15}
 $$
 
-帶回 $y(t) = H(\Omega) e^{j \Omega t}$ 得到：
+帶回 $y_p(t) = H(\Omega) e^{j \Omega t}$ 得到：
 $$
-y(t) = \frac{e^{j \Omega t}}{RC \cdot j \Omega + 1} \tag{1-8}
+y_p(t) = \frac{e^{j \Omega t}}{RC \cdot j \Omega + 1} \tag{1-16}
 $$
    
 ---
 
 ### 手寫過程
-![01](https://hackmd.io/_uploads/ryKEWQYbkl.jpg)
+![01](https://hackmd.io/_uploads/SkJLQ2BMJx.jpg)
+
 
 ## **Problem 2**
 ### **題目**
@@ -854,5 +891,7 @@ fs = 16000 Hz
 | 400 Hz | 波形略有不同但仍接近 | 輕微衰減 | 400 Hz的地方輕微相位變化 |
 | 3000 Hz | 波形振幅大幅下降 | 振幅顯著衰減 | 3000 Hz的地方相位變化顯著，顯示高頻衰減效果 |
 
-**結論**
+---
+
+### **結論**
 從這些圖中可以看出，取樣頻率與訊號頻率的關係對訊號的準確度有影響。當訊號通過 RC 低通濾波器時，只要訊號頻率超過濾波器的截止頻率，即使取樣頻率不同，都會被顯著衰減。這表示 RC 濾波器能有效濾除高頻成分，削弱頻率超過截止點的訊號，並且在設計系統時需注意取樣頻率必須足夠高，以避免混疊現象。
