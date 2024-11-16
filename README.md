@@ -1,7 +1,7 @@
 # DSP Assignment-1
 Simulation of RC Low-Pass Filter by Discrete Signal Processing
 
-hackmd：https://hackmd.io/@9KvvH16wQKCNkiQnydFUsQ/DSP_Assignment_1
+hackmd：https://hackmd.io/@9KvvH16wQKCNkiQnydFUsQ/r1fL87KZ1x
 
 ## 學習目標
 1. 了解Linear Constant-Coefficient Difference Equation (LCCDE) 的由來以及原理
@@ -15,51 +15,88 @@ hackmd：https://hackmd.io/@9KvvH16wQKCNkiQnydFUsQ/DSP_Assignment_1
 If $x(t) = e^{j \Omega t}$ ,find $y(t)$ .Nont that $y(t)$ can be expressed by $y(t) = H(\Omega) e^{j \Omega t}$ where $H(\Omega)$ is a function of $\Omega$ with parameters of $R$ and $C$ .
 
 ### **解題步驟**
-根據題意，假設 $x(t) = e^{j \Omega t}$ ，要找 $y(t)$：
-$$
-y(t) = H(\Omega) e^{j \Omega t} \tag{1-1}
-$$
-先求 $H(\Omega)$
-
 由題目的 `eq.(3)` 可以知道：
 $$
 X(t) = RC \frac{d y(t)}{d t} + y(t) \tag{1-2}
 $$
 
-將 $x(t) = e^{j \Omega t}$ 和 $y(t) = H(\Omega) e^{j \Omega t}$ 帶入方程式：
+**1. Homogeneous Solution**
+
 $$
-e^{j \Omega t} = RC \frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right) + H(\Omega) e^{j \Omega t} \tag{1-3}
+RC \frac{d y_h(t)}{d t} + y_h(t) = 0 \tag{1-3}
+$$
+
+設 $y_h(t) = e^{a t}$ , 代入微分方程：
+
+$$
+RC \frac{d}{d t}e^{a t} + e^{a t} = 0 \tag{1-4}
+$$
+
+展開：
+
+$$
+RCae^{a t} + e^{a t} = 0 \tag{1-6}
+$$
+
+因 $e^{a t} \not= 0$ ，可消去 $e^{a t}$
+
+$$
+RCa+1 = 0 \tag{1-7}
+$$
+
+$$
+a = -\frac{1}{RC} \tag{1-8}
+$$
+
+齊次解為：
+
+$$
+y_h(t) = Ae^{-\frac{1}{RC}}, A為常數 \tag{1-9}
+$$
+
+**2. Particular Solution**
+
+假設 $x(t) = e^{j \Omega t}$：
+$$
+y_p(t) = H(\Omega) e^{j \Omega t} \tag{1-10}
+$$
+先求 $H(\Omega)$：
+
+將 $x(t) = e^{j \Omega t}$ 和 $y_p(t) = H(\Omega) e^{j \Omega t}$ 帶入方程式：
+$$
+e^{j \Omega t} = RC \frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right) + H(\Omega) e^{j \Omega t} \tag{1-11}
 $$
 
 先求 $\frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right)$：
 $$
-\frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right) = H(\Omega) \cdot j \Omega e^{j \Omega t} \tag{1-4}
+\frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right) = H(\Omega) \cdot j \Omega e^{j \Omega t} \tag{1-12}
 $$
 
-再將算出來的 $\frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right)$ 帶回 `eq.(1-3)` 可以得到：
+再將算出來的 $\frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right)$ 帶回 `eq.(1-11)` 可以得到：
 $$
-e^{j \Omega t} = RC \cdot H(\Omega) \cdot j \Omega e^{j \Omega t} + H(\Omega) e^{j \Omega t} \tag{1-5}
+e^{j \Omega t} = RC \cdot H(\Omega) \cdot j \Omega e^{j \Omega t} + H(\Omega) e^{j \Omega t} \tag{1-13}
 $$
 
 因為兩邊都有 $e^{j \Omega t}$，可以消去，最後得到：
 $$
-1 = (RC \cdot j \Omega + 1) H(\Omega) \tag{1-6}
+1 = (RC \cdot j \Omega + 1) H(\Omega) \tag{1-14}
 $$
 
 最後化簡之後可以得到 $H(\Omega)$ ：
 $$
-H(\Omega) = \frac{1}{RC \cdot j \Omega + 1} \tag{1-7}
+H(\Omega) = \frac{1}{RC \cdot j \Omega + 1} \tag{1-15}
 $$
 
-帶回 $y(t) = H(\Omega) e^{j \Omega t}$ 得到：
+帶回 $y_p(t) = H(\Omega) e^{j \Omega t}$ 得到：
 $$
-y(t) = \frac{e^{j \Omega t}}{RC \cdot j \Omega + 1} \tag{1-8}
+y_p(t) = \frac{e^{j \Omega t}}{RC \cdot j \Omega + 1} \tag{1-16}
 $$
    
 ---
 
 ### 手寫過程
-![01](https://hackmd.io/_uploads/ryKEWQYbkl.jpg)
+![01](https://hackmd.io/_uploads/SkJLQ2BMJx.jpg)
+
 
 ## **Problem 2**
 ### **題目**
@@ -249,7 +286,7 @@ $$
 $$
 H(\omega) e^{j\omega n} = \frac{RC}{RC + \tau} H(\omega) e^{j\omega(n-1)} + \frac{\tau}{\tau + RC} e^{j\omega n} \tag{5-2}
 $$
-消掉 $e^{j\omega n}$ ，並將 $H(\omega)$ 項整理到等號右側：
+消掉 $e^{j\omega n}$ ，並將 $H(\omega)$ 項整理到等號左側：
 $$
 H(\omega) - \frac{RC}{RC + \tau} e^{-j\omega} H(\omega) = \frac{\tau}{\tau + RC} \tag{5-3}
 $$
@@ -455,10 +492,8 @@ flowchart TD
     B --> C[計算樣本數 num_samples]
     C --> D[打開輸出檔案]
     D --> E[寫入 WAV 檔案標頭]
-    
     F -- 所有樣本生成完成 --> K[關閉檔案]
     K --> M[結束程式]
-
     E --> F[迴圈產生音訊數據]
     F --> G[計算當前樣本時間 t = i / sample_rate]
     G --> H[計算左聲道樣本值 left_sample]
@@ -542,8 +577,7 @@ int main(int argc, char *argv[]) {
 * `frequency`：將第二個參數轉換為浮點數，表示波的頻率。
 * `duration`：將第三個參數轉換為浮點數，表示音檔的持續時間。
 * `output_file`：第四個參數為輸出wav檔案的名稱。
-* `num_samples`：計算所需的樣本數，等於 `sample_rate * duration`。
-* `file`：以二進位模式打開輸出檔案。若打開失敗，則顯示錯誤訊息並返回錯誤。
+* `num_samples`：計算所需的樣本數， `sample_rate * duration`。
 
 調用 `write_wav_header` 函數來寫入 WAV 音檔的標頭。
 
@@ -558,10 +592,10 @@ int main(int argc, char *argv[]) {
         fwrite(&right_sample, sizeof(short), 1, file);
     }
 ```
-* `t`：計算當前樣本時間點 $t = \frac{i}{\text{sample_rate}}$ 。
-* `left_sample`：左聲道的樣本值，根據 sin 波公式計算，範圍在 -32767 到 32767 之間。
-* `right_sample`：右聲道的樣本值，根據 cos 波公式計算，範圍也在 -32767 到 32767 之間。
-* `fwrite`：將 `left_sample` 和 `right_sample` 分別寫入檔案，形成立體聲輸出。
+* `t`：計算當前sample時間點 $t = \frac{i}{\text{sample_rate}}$ 。
+* `left_sample`：左聲道的sample值，根據 sin 波公式計算，範圍在 -32767 到 32767 之間。
+* `right_sample`：右聲道的sample值，根據 cos 波公式計算，範圍也在 -32767 到 32767 之間。
+* 將 `left_sample` 和 `right_sample` 分別寫入檔案，形成雙聲道輸出。
 
 **5. 關閉檔案並結束程式**
 ```c=+
@@ -622,17 +656,7 @@ int main(int argc, char *argv[]) {
     const char *output_file = argv[2];
 
     FILE *in_fp = fopen(input_file, "rb");
-    if (!in_fp) {
-        perror("Unable to open input file");
-        return 1;
-    }
-
     FILE *out_fp = fopen(output_file, "wb");
-    if (!out_fp) {
-        perror("Unable to open output file");
-        fclose(in_fp);
-        return 1;
-    }
 
     WAVHeader header;
     read_wav_header(in_fp, &header);
@@ -659,7 +683,6 @@ int main(int argc, char *argv[]) {
 
     fclose(in_fp);
     fclose(out_fp);
-    printf("Filtered WAV file '%s' generated successfully.\n", output_file);
     return 0;
 }
 ```
@@ -668,20 +691,14 @@ int main(int argc, char *argv[]) {
 ```mermaid
 flowchart TD
     A[開始] --> B[解析命令列參數: 輸入檔案和輸出檔案名稱]
-    B --> C[打開輸入檔案 in_fp 和 輸出檔案 out_fp]
-    C --> D[讀取並寫入 WAV 檔案標頭]
-
-    D --> E[計算 RC 濾波器參數 alpha 和 beta]
+    B --> C[打開輸入檔案 in_fn 和 輸出檔案 out_fn]
+    C --> D[讀取並寫入 WAV 檔案Header]
+    D --> E[計算 RC 濾波器參數]
     E --> F[初始化 prev_output_left 和 prev_output_right]
-
     F --> G[迴圈讀取 BUFFER_SIZE 大小的音訊數據]
     G --> H[用 RC 濾波器處理左/右聲道樣本]
-    H --> K
-    K --> G[讀取下一組音訊數據]
-
-    G -- 所有音訊數據處理完成 --> L[關閉輸入和輸出檔案]
-    L --> M[顯示檔案生成成功訊息]
-    M --> N[結束程式]
+    H --> L[關閉輸入和輸出檔案]
+    L --> N[結束程式]
 ```
 
 **1. include 檔案與定義**
@@ -719,7 +736,7 @@ typedef struct {
 ```
 結構體表示 WAV 檔案的標頭，用於存取音訊的基本資訊，如採樣率、聲道數量、每樣本位元數等。
 
->[!Note]WAV 檔詳細介紹請參考恭緯學長的文件
+>[!Note]WAV 檔詳細介紹參考恭緯學長的文件
 >[WAVE PCM 聲音文件格式](https://hackmd.io/@will1860/wave%E6%AA%94header%E8%AA%AA%E6%98%8E)
 
 **3. read_wav_header 和 write_wav_header 函數**
@@ -747,8 +764,8 @@ $$
 y[n] = \frac{RC}{RC + \tau} y[n-1] + \frac{\tau}{\tau + RC} x[n] \tag{5-1}
 $$
 * `alpha` 和 `beta` 是濾波器參數，分別等於 `RC / (RC + dt)` 和 `dt / (RC + dt)`。
-* `input` 是當前樣本值。
-* `prev_output` 用於儲存上一個濾波輸出值，用來計算當前輸出。
+* `input` 是當前sample值。
+* `prev_output` 用於儲存上一個輸出值，用來計算當前輸出 ( $y[n-1]$ )。
 
 **5. 主程式**
 ```c=+
@@ -762,25 +779,15 @@ int main(int argc, char *argv[]) {
     const char *output_file = argv[2];
 
     FILE *in_fp = fopen(input_file, "rb");
-    if (!in_fp) {
-        perror("Unable to open input file");
-        return 1;
-    }
-
     FILE *out_fp = fopen(output_file, "wb");
-    if (!out_fp) {
-        perror("Unable to open output file");
-        fclose(in_fp);
-        return 1;
-    }
 
     WAVHeader header;
     read_wav_header(in_fp, &header);
     write_wav_header(out_fp, &header);
 ```
-主函數處理檔案打開、濾波器初始化、數據處理和檔案寫入操作。
+主程式處理檔案打開、濾波器初始化、數據處理和檔案寫入。
 * 檢查命令列參數的數量是否正確。如果參數不正確，顯示用法並結束程式。
-* 打開輸入和輸出檔案。輸入檔案以二進位讀取模式打開，輸出檔案以二進位寫入模式打開。
+* 打開輸入和輸出檔案。
 * 從輸入檔案讀取 WAV 標頭並將其寫入輸出檔案，以保持檔案格式。
 
 **6. 濾波器參數計算**
@@ -791,7 +798,7 @@ int main(int argc, char *argv[]) {
     double alpha = RC / (RC + dt);
     double beta = dt / (RC + dt);
 ```
-* `RC`：RC 濾波器的時間常數，這裡假設 400 Hz 的截止頻率。
+* `RC`：RC 濾波器的常數， $R = 1000 \Omega$, $C = \frac{1}{2\pi \times 400 \times 1000}$。
 * `dt`：每個樣本的時間間隔。
 * `alpha` 和 `beta` 是濾波器參數，分別等於 `RC / (RC + dt)` 和 `dt / (RC + dt)`。
 
@@ -810,10 +817,10 @@ int main(int argc, char *argv[]) {
         fwrite(buffer, sizeof(short), samples_read, out_fp);
     }
 ```
-* `buffer`：暫存區，用於儲存從檔案中讀取的音訊數據。
-* `prev_output_left` 和 `prev_output_right`：分別記錄左右聲道的上一個濾波輸出。
-* 迴圈中，每次從輸入檔案中讀取一組 `BUFFER_SIZE` 的樣本。
-* 對於每組樣本，將左右聲道分別應用 RC 濾波器，濾波後的樣本再寫入輸出檔案。
+* `buffer`：用於儲存從檔案中讀取的音訊數據。
+* `prev_output_left` 和 `prev_output_right`：分別記錄左右聲道的上一個輸出。
+* 迴圈中，每次從輸入檔案中讀取一組樣本。
+* 對於每組樣本，將左右聲道分別用 RC 濾波器濾波再寫入輸出檔案。
 
 **8. 關閉檔案並結束程式**
 ```c=+
@@ -825,5 +832,66 @@ int main(int argc, char *argv[]) {
 ```
 ___
 
-#### 結果
+### 結果
 
+fs = 4000, f = 100
+![4000_100](https://hackmd.io/_uploads/B1LxDQ5bJg.png)
+
+
+fs = 4000, f = 400
+![4000_400](https://hackmd.io/_uploads/BJgyDmqZyx.png)
+
+fs = 4000, f = 3000
+![4000_3000](https://hackmd.io/_uploads/BydWw75WJg.png)
+
+這三張圖比較了不同頻率（100 Hz、400 Hz 和 3000 Hz）的音訊信號在經過濾波前後的變化，採樣率（fs）都是 4000 Hz。圖中的每個部分展示了左、右聲道在時間域、振幅頻譜和相位頻譜上的比較。
+
+fs = 4000 Hz
+| 頻率 | 波形 | 振幅-頻譜 | 相位-頻譜 |
+| ------ | ------ | ------- | --- |
+| 100 Hz | 波形幾乎重合 | 振幅頻譜幾乎無變化 | 100 Hz的地方基本一致 |
+| 400 Hz | 波形略有不同但仍接近 | 輕微衰減 | 400 Hz的地方輕微相位變化 |
+| 3000 Hz | 波形振幅大幅下降 | 顯著衰減；由於頻率高於 fs/2 所以混跌於 1000 Hz 附近 | 顯著相位變化並顯示混疊於1000 Hz |
+
+
+
+---
+
+fs = 8000, f = 100
+![8000_100](https://hackmd.io/_uploads/HJIpAXcZkl.png)
+
+fs = 8000, f = 400
+![8000_400](https://hackmd.io/_uploads/S1tp0Q5-1l.png)
+
+fs = 8000, f = 3000
+![8000_3000](https://hackmd.io/_uploads/ByhpCm9Zkl.png)
+
+fs = 8000 Hz
+| 頻率 | 波形 | 振幅-頻譜 | 相位-頻譜 |
+| ------ | ------ | ------- | --- |
+| 100 Hz | 波形幾乎重合 | 振幅頻譜幾乎無變化 | 100 Hz的地方基本一致 |
+| 400 Hz | 波形略有不同但仍接近 | 輕微衰減 | 400 Hz的地方輕微相位變化 |
+| 3000 Hz | 波形振幅大幅下降 | 振幅顯著衰減，3000 Hz 被大幅削弱 | 3000 Hz的地方相位變化顯著，顯示高頻衰減效果 |
+
+---
+
+fs = 16000, f = 100
+![16000_100](https://hackmd.io/_uploads/rJucWE9ZJx.png)
+
+fs = 16000, f = 400
+![16000_400](https://hackmd.io/_uploads/rk9cbEqZyg.png)
+
+fs = 16000, f = 3000
+![16000_3000](https://hackmd.io/_uploads/Ska5WV9-kg.png)
+
+fs = 16000 Hz
+| 頻率 | 波形 | 振幅-頻譜 | 相位-頻譜 |
+| ------ | ------ | ------- | --- |
+| 100 Hz | 波形幾乎重合 | 振幅頻譜幾乎無變化 | 100 Hz的地方基本一致 |
+| 400 Hz | 波形略有不同但仍接近 | 輕微衰減 | 400 Hz的地方輕微相位變化 |
+| 3000 Hz | 波形振幅大幅下降 | 振幅顯著衰減 | 3000 Hz的地方相位變化顯著，顯示高頻衰減效果 |
+
+---
+
+### **結論**
+從這些圖中可以看出，取樣頻率與訊號頻率的關係對訊號的準確度有影響。當訊號通過 RC 低通濾波器時，只要訊號頻率超過濾波器的截止頻率，即使取樣頻率不同，都會被顯著衰減。這表示 RC 濾波器能有效濾除高頻成分，削弱頻率超過截止點的訊號，並且在設計系統時需注意取樣頻率必須足夠高，以避免混疊現象。
