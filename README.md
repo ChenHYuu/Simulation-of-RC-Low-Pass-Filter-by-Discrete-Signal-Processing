@@ -973,15 +973,15 @@ ___
 #### 比較波型 & 振幅
 
 fs = 4000, f = 100, L = 0.1 (s)
-![4000_100](https://hackmd.io/_uploads/H1mzaprGkl.png)
+![4000_100](https://hackmd.io/_uploads/B1r83Liz1x.png)
 
 fs = 4000, f = 400, L = 0.1 (s)
-![4000_400](https://hackmd.io/_uploads/HkCzaTHfkg.png)
+![4000_400](https://hackmd.io/_uploads/ry3U3LsMkg.png)
 
 fs = 4000, f = 3000, L = 0.01 (s)
-![4000_3000](https://hackmd.io/_uploads/HkSr6TSz1l.png)
+![4000_3000](https://hackmd.io/_uploads/ByzPnLifyx.png)
 
-| 頻率 | 波形 | 振幅-頻譜 |
+| 頻率 | 波形 | 振幅 |
 | ------ | ------ | ------- |
 | 100 Hz | 波形幾乎重合，跟第三題算出來的振幅差不多 (0.97)  | 振幅頻譜幾乎無變化 |
 | 400 Hz | 波形略有不同但仍接近，跟第三題算出來的振幅差不多 (0.707) | 輕微衰減 |
@@ -990,16 +990,16 @@ fs = 4000, f = 3000, L = 0.01 (s)
 ---
 
 fs = 8000, f = 100, L = 0.1 (s)
-![8000_100](https://hackmd.io/_uploads/r1KdyAHfkl.png)
+![8000_100](https://hackmd.io/_uploads/H1COn8izkg.png)
 
 fs = 8000, f = 400, L = 0.1 (s)
-![8000_400](https://hackmd.io/_uploads/HJ1YkCrzyg.png)
+![8000_400](https://hackmd.io/_uploads/HyfY3UsGyx.png)
 
 fs = 8000, f = 3000, L = 0.01 (s)
-![8000_3000](https://hackmd.io/_uploads/S1VFJABMJx.png)
+![8000_3000](https://hackmd.io/_uploads/ryLKhLjGkl.png)
 
 fs = 8000 Hz
-| 頻率 | 波形 | 振幅-頻譜 |
+| 頻率 | 波形 | 振幅 |
 | ------ | ------ | ------- |
 | 100 Hz | 波形幾乎重合，跟第三題算出來的振幅差不多 (0.97) | 振幅頻譜幾乎無變化 |
 | 400 Hz | 波形略有不同但仍接近，跟第三題算出來的振幅差不多 (0.707) | 輕微衰減 |
@@ -1008,16 +1008,16 @@ fs = 8000 Hz
 ---
 
 fs = 16000, f = 100, L = 0.1 (s)
-![16000_100](https://hackmd.io/_uploads/SkdpxABz1l.png)
+![16000_100](https://hackmd.io/_uploads/r1echIiG1l.png)
 
 fs = 16000, f = 400, L = 0.1 (s)
-![16000_400](https://hackmd.io/_uploads/SkO0l0SzJx.png)
+![16000_400](https://hackmd.io/_uploads/HyUcnIoGkx.png)
 
 fs = 16000, f = 3000, L = 0.01 (s)
-![16000_3000](https://hackmd.io/_uploads/rkv1ZCSfyg.png)
+![16000_3000](https://hackmd.io/_uploads/B1schUsMyl.png)
 
 fs = 16000 Hz
-| 頻率 | 波形 | 振幅-頻譜 |
+| 頻率 | 波形 | 振幅 |
 | ------ | ------ | ------- |
 | 100 Hz | 波形幾乎重合，跟第三題算出來的振幅差不多 (0.97) | 振幅頻譜幾乎無變化 |
 | 400 Hz | 波形略有不同但仍接近，跟第三題算出來的振幅差不多 (0.707) | 輕微衰減 |
@@ -1038,16 +1038,16 @@ f = 3000時, 相位delay約為 -0.000763 秒
 以 f = 3000，來做比較：
 
 f = 3000, fs = 4000, L = 0.01 (s)
-![4000_3000](https://hackmd.io/_uploads/S10qWArfkx.png)
+![4000_3000](https://hackmd.io/_uploads/ByOjhIjz1e.png)
 
 f = 3000, fs = 8000, L = 0.01 (s)
-![8000_3000](https://hackmd.io/_uploads/H1ooZAHGye.png)
+![8000_3000](https://hackmd.io/_uploads/r1Ts28iMJx.png)
 
 f = 3000, fs = 16000, L = 0.01 (s)
-![16000_3000](https://hackmd.io/_uploads/BkL3WCBMyl.png)
+![16000_3000](https://hackmd.io/_uploads/S1XnnLjGyx.png)
 
 f = 3000, fs = 44100, L = 0.01 (s)
-![44100_3000](https://hackmd.io/_uploads/Hkf6-AHzJx.png)
+![44100_3000](https://hackmd.io/_uploads/r1v3hUiGke.png)
 
 從以上四張圖可以發現
 1. **取樣率越高，波型越完整**
@@ -1086,3 +1086,12 @@ $$
 ### **結論**
 
 從這些圖中可以看出，取樣頻率與訊號頻率的關係對訊號的準確度有影響。當訊號通過 RC 低通濾波器時，只要訊號頻率超過濾波器的截止頻率，即使取樣頻率不同，都會被顯著衰減。這表示 RC 濾波器能有效濾除高頻成分，削弱頻率超過截止點的訊號，並且在設計時需注意取樣頻率必須足夠高，以避免混疊現象。
+
+當 f 相同時：
+ - fs 越高，波形越完整
+ - fs 越高，phase delay與理論值的誤差越小
+
+當 fs 相同時
+ - f 越高，delay會越小
+ - f 越高，經過RC低通濾波器後的波形衰減的越明顯
+
