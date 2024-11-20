@@ -1,7 +1,7 @@
 # DSP Assignment-1
 Simulation of RC Low-Pass Filter by Discrete Signal Processing
 
-hackmd：https://hackmd.io/@9KvvH16wQKCNkiQnydFUsQ/r1fL87KZ1x
+hackmd：[DSP_Assignment_1](https://hackmd.io/@9KvvH16wQKCNkiQnydFUsQ/DSP_Assignment_1)
 
 ## 學習目標
 1. 了解Linear Constant-Coefficient Difference Equation (LCCDE) 的由來以及原理
@@ -17,79 +17,89 @@ If $x(t) = e^{j \Omega t}$ ,find $y(t)$ .Nont that $y(t)$ can be expressed by $y
 ### **解題步驟**
 由題目的 `eq.(3)` 可以知道：
 $$
-X(t) = RC \frac{d y(t)}{d t} + y(t) \tag{1-2}
+X(t) = RC \frac{d y(t)}{d t} + y(t) \tag{1-1}
 $$
 
 **1. Homogeneous Solution**
 
 $$
-RC \frac{d y_h(t)}{d t} + y_h(t) = 0 \tag{1-3}
+RC \frac{d y_h(t)}{d t} + y_h(t) = 0 \tag{1-2}
 $$
 
 設 $y_h(t) = e^{a t}$ , 代入微分方程：
 
 $$
-RC \frac{d}{d t}e^{a t} + e^{a t} = 0 \tag{1-4}
+RC \frac{d}{d t}e^{a t} + e^{a t} = 0 \tag{1-3}
 $$
 
 展開：
 
 $$
-RCae^{a t} + e^{a t} = 0 \tag{1-6}
+RCae^{a t} + e^{a t} = 0 \tag{1-4}
 $$
 
 因 $e^{a t} \not= 0$ ，可消去 $e^{a t}$
 
 $$
-RCa+1 = 0 \tag{1-7}
+RCa+1 = 0 \tag{1-5}
 $$
 
 $$
-a = -\frac{1}{RC} \tag{1-8}
+a = -\frac{1}{RC} \tag{1-6}
 $$
 
 齊次解為：
 
 $$
-y_h(t) = Ae^{-\frac{1}{RC}}, A為常數 \tag{1-9}
+y_h(t) = Ae^{-\frac{1}{RC}}, A為常數 \tag{1-7}
 $$
 
 **2. Particular Solution**
 
 假設 $x(t) = e^{j \Omega t}$：
 $$
-y_p(t) = H(\Omega) e^{j \Omega t} \tag{1-10}
+y_p(t) = H(\Omega) e^{j \Omega t} \tag{1-8}
 $$
 先求 $H(\Omega)$：
 
 將 $x(t) = e^{j \Omega t}$ 和 $y_p(t) = H(\Omega) e^{j \Omega t}$ 帶入方程式：
 $$
-e^{j \Omega t} = RC \frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right) + H(\Omega) e^{j \Omega t} \tag{1-11}
+e^{j \Omega t} = RC \frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right) + H(\Omega) e^{j \Omega t} \tag{1-9}
 $$
 
 先求 $\frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right)$：
 $$
-\frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right) = H(\Omega) \cdot j \Omega e^{j \Omega t} \tag{1-12}
+\frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right) = H(\Omega) \cdot j \Omega e^{j \Omega t} \tag{1-10}
 $$
 
 再將算出來的 $\frac{d}{dt} \left( H(\Omega) e^{j \Omega t} \right)$ 帶回 `eq.(1-11)` 可以得到：
 $$
-e^{j \Omega t} = RC \cdot H(\Omega) \cdot j \Omega e^{j \Omega t} + H(\Omega) e^{j \Omega t} \tag{1-13}
+e^{j \Omega t} = RC \cdot H(\Omega) \cdot j \Omega e^{j \Omega t} + H(\Omega) e^{j \Omega t} \tag{1-11}
 $$
 
 因為兩邊都有 $e^{j \Omega t}$，可以消去，最後得到：
 $$
-1 = (RC \cdot j \Omega + 1) H(\Omega) \tag{1-14}
+1 = (RC \cdot j \Omega + 1) H(\Omega) \tag{1-12}
 $$
 
 最後化簡之後可以得到 $H(\Omega)$ ：
 $$
-H(\Omega) = \frac{1}{RC \cdot j \Omega + 1} \tag{1-15}
+H(\Omega) = \frac{1}{RC \cdot j \Omega + 1} \tag{1-13}
 $$
 
-帶回 $y_p(t) = H(\Omega) e^{j \Omega t}$ 得到：
+帶回 $y_p(t) = H(\Omega) e^{j \Omega t}$ 得到特解為：
 $$
-y_p(t) = \frac{e^{j \Omega t}}{RC \cdot j \Omega + 1} \tag{1-16}
+y_p(t) = \frac{e^{j \Omega t}}{RC \cdot j \Omega + 1} \tag{1-14}
+$$
+
+**3. General Solution**
+
+$$
+y(t) = y_h(t) + y_p(t)
+$$
+
+$$
+y(t) = Ae^{-\frac{1}{RC}} + \frac{e^{j \Omega t}}{RC \cdot j \Omega + 1}, A為常數 \tag{1-15}
 $$
    
 ---
@@ -105,49 +115,131 @@ If $x(t) = e^{j\Omega t}u(t)$ , where $u(t)$ is the unit step function, find $y(
 ### **解題步驟**
 根據題意，假設 $x(t) = e^{j\Omega t}u(t)$ ，要找 $y(t)$
 
-如果設 $x(t) = \delta(t)$ ，則可以表達為：
+由題目的 `eq.(3)` 可以知道：
 $$
-\delta(t) = RC \frac{d}{dt}h(t) + h(t) \tag{2-1}
-$$
-
-將 `eq.(2-1)` 進行 Laplace Transform $\mathcal{L}\{h(t)\}$ ，假設初始條件為零：
-$$
-1 = (RC \cdot s + 1) H(s) \tag{2-2}
-$$
-得到 $H(s)$ ：
-$$
-H(s) = \frac{1}{RC \cdot s + 1} \tag{2-3}
+X(t) = RC \frac{d y(t)}{d t} + y(t) \tag{2-1}
 $$
 
-之後再轉回去 得到 $h(t)$ ：
+**1. Homogeneous Solution**
+
 $$
-\mathcal{L}^{-1} \{H(s)\} \Rightarrow h(t) = \frac{1}{RC} e^{-\frac{1}{RC}t} u(t) \tag{2-4}
+RC \frac{d y_h(t)}{d t} + y_h(t) = 0 \tag{2-2}
 $$
 
-因為 $y(t) = x(t) * h(t)$ ，則：
+設 $y_h(t) = e^{a t}$ , 代入微分方程：
+
 $$
-y(t) = \int_{0}^{t} h(\tau) e^{j\Omega (t - \tau)} d\tau \tag{2-5}
+RC \frac{d}{d t}e^{a t} + e^{a t} = 0 \tag{2-3}
 $$
 
-代入 `eq.(2-4)` 可以得到：
+展開：
+
 $$
-y(t) = \int_{0}^{t} \frac{1}{RC} e^{-\frac{\tau}{RC}} e^{j\Omega (t - \tau)} d\tau \tag{2-6}
+RCae^{a t} + e^{a t} = 0 \tag{2-4}
 $$
 
-可以提出 $e^{j\Omega t}$ 項：
+因 $e^{a t} \not= 0$ ，可消去 $e^{a t}$
+
 $$
-y(t) = \frac{1}{RC} e^{j\Omega t} \int_{0}^{t} e^{-\left(\frac{1}{RC} + j\Omega \right) \tau} d\tau \tag{2-7}
+RCa+1 = 0 \tag{2-5}
 $$
 
-計算積分項，得到 $y(t)$ ：
 $$
-y(t) = \frac{1}{RC} e^{j\Omega t} \times \frac{1 - e^{-\left(\frac{1}{RC} + j\Omega \right)t}}{\frac{1}{RC} + j\Omega} \tag{2-8}
+a = -\frac{1}{RC} \tag{2-6}
 $$
+
+齊次解為：
+
+$$
+y_h(t) = Ae^{-\frac{1}{RC}}, A為常數 \tag{2-7}
+$$
+
+**2. Particular Solution**
+
+假設 $x(t) = e^{j \Omega t}u(t)$：
+$$
+y_p(t) = H(\Omega) e^{j \Omega t}u(t) \tag{2-8}
+$$
+先求 $H(\Omega)$：
+
+將 $x(t) = e^{j \Omega t}u(t)$ 和 $y_p(t) = H(\Omega) e^{j \Omega t}u(t)$ 帶入方程式：
+
+$$
+e^{j \Omega t}u(t) = RC \frac{d}{dt} \left( H(\Omega) e^{j \Omega t}u(t) \right) + H(\Omega) e^{j \Omega t}u(t) \tag{2-9}
+$$
+
+先求 $\frac{d}{dt} \left( y_p(t) e^{j \Omega t} \right)$：
+
+$$
+\frac{d}{dt} \left( y_p(t) e^{j \Omega t} \right) = H(\Omega) \left( e^{j \Omega t} \frac{du(t)}{dt} + \cdot j \Omega e^{j \Omega t}u(t) \right) \tag{2-10}
+$$
+
+其中：
+$$
+\frac{d u(t)}{dt} = \delta(t) \tag{2-11}
+$$
+
+因此：
+$$
+\frac{d y_p(t)}{dt} = H(\Omega) \left[ \ e^{j \Omega t} \delta(t) + j \Omega e^{j \Omega t} u(t) \right] \tag{2-12}
+$$
+
+代回原式：
+$$
+e^{j \Omega t} u(t) = RC \cdot H(\Omega) \left[ e^{j \Omega t} \delta(t) + j \Omega e^{j \Omega t} u(t) \right] + H(s) e^{j \Omega t} u(t) \tag{2-13}
+$$
+
+假設 $y(0) = 0$ 且 $t > 0$ 時，$u(t) = 1$，$\delta(t) = 0$，則：
+$$
+e^{j \Omega t} = RC \cdot H(\Omega) \cdot j \Omega e^{j \Omega t} + H(\Omega) e^{j \Omega t} \tag{2-14}
+$$
+
+得：
+$$
+H(\Omega) = \frac{1}{1 + j \Omega RC} \tag{2-15}
+$$
+
+特解為：
+$$
+y_p(t) = \frac{1}{1 + j \Omega RC} e^{j \Omega t} u(t) \tag{2-16}
+$$
+
+
+**3. General Solution**
+
+$$
+y(t) = y_h(t) + y_p(t) = A e^{-\frac{t}{RC}} + \frac{1}{1 + j \Omega RC} e^{j \Omega t} u(t), A為常數 \tag{2-17}
+$$
+
+**4. 初始條件**
+
+前面設初始條件 $y(0) = 0$，則：
+$$
+y(0) = A e^{0} + \frac{1}{1 + j \Omega RC} e^{0} u(0) \tag{2-18}
+$$
+
+由 $u(0) = 1$ 得：
+$$
+0 = A + \frac{1}{1 + j \Omega RC} \implies A = -\frac{1}{1 + j \Omega RC} \tag{2-19}
+$$
+
+將 $A$ 代回：
+$$
+y(t) = -\frac{1}{1 + j \Omega RC} e^{-\frac{t}{RC}} + \frac{1}{1 + j \Omega RC} e^{j \Omega t} u(t) \tag{2-20}
+$$
+
+整理後：
+$$
+y(t) = \frac{1}{1 + j \Omega RC} \left( e^{j \Omega t} u(t) - e^{-\frac{t}{RC}} \right) \tag{2-21}
+$$
+
 
 ---
 
 ### 手寫過程
-![02](https://hackmd.io/_uploads/S1lr-XFb1x.jpg)
+![02-1](https://hackmd.io/_uploads/B1Ti_3Bf1x.jpg)
+![02-2](https://hackmd.io/_uploads/rylnu3HGJg.jpg)
+
 
 ## **Problem 3**
 ### **題目**
@@ -160,54 +252,97 @@ If $x(t) = e^{j\Omega t}$ , $R = 1000\Omega$ ,and $C = \left(\frac{1}{2\pi} \tim
 - $y(t) = \frac{e^{j\Omega t}}{RC \cdot j\Omega + 1}$
 
 (1) 當 $f = 100$ Hz時：
+$$
+\Omega = 2 \pi f = 2 \pi \times 100 = 200 \pi \approx 628.3 \ (\text{rad/s}) \tag{3-1}
+$$
 
-計算 $\Omega = 2\pi \cdot f = 2 \pi \times 100 = 200\pi$
+$$
+H(200\pi) = \frac{1}{1000 \times \frac{1}{2 \pi \times 400 \times 1000} \times j \cdot 200\pi + 1} = \frac{1}{0.25j + 1} \tag{3-2}
+$$
 
-$\Omega$ 代入 $(t)$ ：
+振幅：
 $$
-y(t) = \frac{e^{j200\pi t}}{1000 \cdot \frac{1}{800000\pi} \cdot j200\pi + 1} \tag{3-1}
+|H(200\pi)| = \frac{1}{\sqrt{1^2 + 0.25^2}} = \frac{1}{\sqrt{1.0625}} \approx 0.97 \tag{3-3}
 $$
-簡化後得到：
+
+相位：
 $$
-y(t) = \frac{e^{j200\pi t}}{0.25j + 1} \tag{3-2}
+\angle H(200\pi) = -\tan^{-1}(0.25) \approx -0.245 \ (\text{rad}) \tag{3-4}
 $$
+
+因此：
 $$
-y(t) = \frac{4e^{j200\pi t}}{j + 4} \tag{3-3}
+y(t) = 0.97 e^{-j 0.245} e^{j 628.3 t} = 0.97 e^{j (628.3 t - 0.245)} \tag{3-5}
+$$
+
+相位延遲 (Phase Delay)：
+$$
+\text{Phase Delay} = \frac{-0.245}{628.3} \approx -0.00039 \ (\text{s}) \tag{3-6}
 $$
 
 (2) 當 $f = 400$ Hz時：
+$$
+\Omega = 2 \pi f = 2 \pi \times 400 = 800 \pi \approx 2513.3 \ (\text{rad/s}) \tag{3-7}
+$$
 
-計算 $\Omega = 2\pi \cdot f = 2 \pi \times 400 = 800\pi$
+$$
+H(800\pi) = \frac{1}{1000 \times \frac{1}{2 \pi \times 400 \times 1000} \times j \cdot 800\pi + 1} = \frac{1}{j + 1} \tag{3-8}
+$$
 
-$\Omega$ 代入 $(t)$ ：
+振幅：
 $$
-y(t) = \frac{e^{j800\pi t}}{1000 \cdot \frac{1}{800000\pi} \cdot j800\pi + 1} \tag{3-4}
+|H(800\pi)| = \frac{1}{\sqrt{1^2 + 1^2}} = \frac{1}{\sqrt{2}} \approx 0.707 \tag{3-9}
 $$
-簡化後得到：
+
+相位：
 $$
-y(t) = \frac{e^{j800\pi t}}{j + 1} \tag{3-5}
+\angle H(800\pi) = -\tan^{-1}(1) \approx -0.785 \ (\text{rad}) \tag{3-10}
+$$
+
+因此：
+$$
+y(t) = 0.707 e^{-j 0.785} e^{j 2513.3 t} = 0.707 e^{j (2513.3 t - 0.785)} \tag{3-11}
+$$
+
+相位延遲 (Phase Delay)：
+$$
+\text{Phase Delay} = \frac{-0.785}{2513.3} \approx -0.000312 \ (\text{s}) \tag{3-12}
 $$
 
 (3) 當 $f = 3000$ Hz時：
+$$
+\Omega = 2 \pi f = 2 \pi \times 3000 = 6000 \pi \approx 18849.6 \ (\text{rad/s}) \tag{3-13}
+$$
 
-計算 $\Omega = 2\pi \cdot f = 2 \pi \times 3000 = 6000\pi$
+$$
+H(6000\pi) = \frac{1}{1000 \times \frac{1}{2 \pi \times 400 \times 1000} \times j \cdot 6000\pi + 1} = \frac{1}{7.5j + 1} \tag{3-14}
+$$
 
-$\Omega$ 代入 $(t)$ ：
+振幅：
 $$
-y(t) = \frac{e^{j6000\pi t}}{1000 \cdot \frac{1}{800000\pi} \cdot j6000\pi + 1} \tag{3-6}
+|H(6000\pi)| = \frac{1}{\sqrt{1^2 + 7.5^2}} = \frac{1}{\sqrt{57.25}} \approx 0.132 \tag{3-15}
 $$
-簡化後得到：
+
+相位：
 $$
-y(t) = \frac{e^{j6000\pi t}}{7.5j + 1} \tag{3-7}
+\angle H(6000\pi) = -\tan^{-1}(7.5) \approx -1.438 \ (\text{rad}) \tag{3-16}
 $$
+
+因此：
 $$
-y(t) = \frac{2e^{j6000\pi t}}{15j + 2} \tag{3-8}
+y(t) = 0.132 e^{-j 1.438} e^{j 18849.6 t} = 0.132 e^{j (18849.6 t - 1.438)} \tag{3-17}
+$$
+
+相位延遲 (Phase Delay)：
+$$
+\text{Phase Delay} = \frac{-1.438}{18849.6} \approx -0.0000763 \ (\text{s}) \tag{3-18}
 $$
 
 ---
 
 ### 手寫過程
-![03](https://hackmd.io/_uploads/BkqBWmKbyl.jpg)
+![03-1](https://hackmd.io/_uploads/B1LldprGkl.jpg)
+![03-2](https://hackmd.io/_uploads/SkjldTBz1e.jpg)
 
 ## **Problem 4**
 ### **題目**
@@ -270,7 +405,8 @@ $$
 ---
 
 ### 手寫過程
-![04](https://hackmd.io/_uploads/ryGUbXFZ1g.jpg)
+![04](https://hackmd.io/_uploads/Hy1PcpHf1e.jpg)
+
 
 ## **Problem 5**
 ### **題目**
@@ -834,64 +970,119 @@ ___
 
 ### 結果
 
-fs = 4000, f = 100
-![4000_100](https://hackmd.io/_uploads/B1LxDQ5bJg.png)
+#### 比較波型 & 振幅
 
+fs = 4000, f = 100, L = 0.1 (s)
+![4000_100](https://hackmd.io/_uploads/H1mzaprGkl.png)
 
-fs = 4000, f = 400
-![4000_400](https://hackmd.io/_uploads/BJgyDmqZyx.png)
+fs = 4000, f = 400, L = 0.1 (s)
+![4000_400](https://hackmd.io/_uploads/HkCzaTHfkg.png)
 
-fs = 4000, f = 3000
-![4000_3000](https://hackmd.io/_uploads/BydWw75WJg.png)
+fs = 4000, f = 3000, L = 0.01 (s)
+![4000_3000](https://hackmd.io/_uploads/HkSr6TSz1l.png)
 
-這三張圖比較了不同頻率（100 Hz、400 Hz 和 3000 Hz）的音訊信號在經過濾波前後的變化，採樣率（fs）都是 4000 Hz。圖中的每個部分展示了左、右聲道在時間域、振幅頻譜和相位頻譜上的比較。
-
-fs = 4000 Hz
-| 頻率 | 波形 | 振幅-頻譜 | 相位-頻譜 |
-| ------ | ------ | ------- | --- |
-| 100 Hz | 波形幾乎重合 | 振幅頻譜幾乎無變化 | 100 Hz的地方基本一致 |
-| 400 Hz | 波形略有不同但仍接近 | 輕微衰減 | 400 Hz的地方輕微相位變化 |
-| 3000 Hz | 波形振幅大幅下降 | 顯著衰減；由於頻率高於 fs/2 所以混跌於 1000 Hz 附近 | 顯著相位變化並顯示混疊於1000 Hz |
-
-
+| 頻率 | 波形 | 振幅-頻譜 |
+| ------ | ------ | ------- |
+| 100 Hz | 波形幾乎重合，跟第三題算出來的振幅差不多 (0.97)  | 振幅頻譜幾乎無變化 |
+| 400 Hz | 波形略有不同但仍接近，跟第三題算出來的振幅差不多 (0.707) | 輕微衰減 |
+| 3000 Hz | 波形振幅大幅下降，跟第三題算出的振幅差不多 (0.132) | 顯著衰減；由於頻率高於 fs/2 所以混跌於 1000 Hz 附近 |
 
 ---
 
-fs = 8000, f = 100
-![8000_100](https://hackmd.io/_uploads/HJIpAXcZkl.png)
+fs = 8000, f = 100, L = 0.1 (s)
+![8000_100](https://hackmd.io/_uploads/r1KdyAHfkl.png)
 
-fs = 8000, f = 400
-![8000_400](https://hackmd.io/_uploads/S1tp0Q5-1l.png)
+fs = 8000, f = 400, L = 0.1 (s)
+![8000_400](https://hackmd.io/_uploads/HJ1YkCrzyg.png)
 
-fs = 8000, f = 3000
-![8000_3000](https://hackmd.io/_uploads/ByhpCm9Zkl.png)
+fs = 8000, f = 3000, L = 0.01 (s)
+![8000_3000](https://hackmd.io/_uploads/S1VFJABMJx.png)
 
 fs = 8000 Hz
-| 頻率 | 波形 | 振幅-頻譜 | 相位-頻譜 |
-| ------ | ------ | ------- | --- |
-| 100 Hz | 波形幾乎重合 | 振幅頻譜幾乎無變化 | 100 Hz的地方基本一致 |
-| 400 Hz | 波形略有不同但仍接近 | 輕微衰減 | 400 Hz的地方輕微相位變化 |
-| 3000 Hz | 波形振幅大幅下降 | 振幅顯著衰減，3000 Hz 被大幅削弱 | 3000 Hz的地方相位變化顯著，顯示高頻衰減效果 |
+| 頻率 | 波形 | 振幅-頻譜 |
+| ------ | ------ | ------- |
+| 100 Hz | 波形幾乎重合，跟第三題算出來的振幅差不多 (0.97) | 振幅頻譜幾乎無變化 |
+| 400 Hz | 波形略有不同但仍接近，跟第三題算出來的振幅差不多 (0.707) | 輕微衰減 |
+| 3000 Hz | 波形振幅大幅下降，跟第三題算出來的振幅差不多 (0.132) | 振幅顯著衰減，3000 Hz 被大幅削弱 |
 
 ---
 
-fs = 16000, f = 100
-![16000_100](https://hackmd.io/_uploads/rJucWE9ZJx.png)
+fs = 16000, f = 100, L = 0.1 (s)
+![16000_100](https://hackmd.io/_uploads/SkdpxABz1l.png)
 
-fs = 16000, f = 400
-![16000_400](https://hackmd.io/_uploads/rk9cbEqZyg.png)
+fs = 16000, f = 400, L = 0.1 (s)
+![16000_400](https://hackmd.io/_uploads/SkO0l0SzJx.png)
 
-fs = 16000, f = 3000
-![16000_3000](https://hackmd.io/_uploads/Ska5WV9-kg.png)
+fs = 16000, f = 3000, L = 0.01 (s)
+![16000_3000](https://hackmd.io/_uploads/rkv1ZCSfyg.png)
 
 fs = 16000 Hz
-| 頻率 | 波形 | 振幅-頻譜 | 相位-頻譜 |
-| ------ | ------ | ------- | --- |
-| 100 Hz | 波形幾乎重合 | 振幅頻譜幾乎無變化 | 100 Hz的地方基本一致 |
-| 400 Hz | 波形略有不同但仍接近 | 輕微衰減 | 400 Hz的地方輕微相位變化 |
-| 3000 Hz | 波形振幅大幅下降 | 振幅顯著衰減 | 3000 Hz的地方相位變化顯著，顯示高頻衰減效果 |
+| 頻率 | 波形 | 振幅-頻譜 |
+| ------ | ------ | ------- |
+| 100 Hz | 波形幾乎重合，跟第三題算出來的振幅差不多 (0.97) | 振幅頻譜幾乎無變化 |
+| 400 Hz | 波形略有不同但仍接近，跟第三題算出來的振幅差不多 (0.707) | 輕微衰減 |
+| 3000 Hz | 波形振幅大幅下降跟第三題算出來的振幅差不多 (0.132) | 振幅顯著衰減 |
+
+#### 比較相位
+
+由第三題可以知道，在
+
+f = 100時, 相位delay約為 -0.0039 秒
+
+f = 400時, 相位delay約為 -0.00312 秒
+
+f = 3000時, 相位delay約為 -0.000763 秒
+
+以上可以知道，**當頻率越大的時候，delay會越小**
+
+以 f = 3000，來做比較：
+
+f = 3000, fs = 4000, L = 0.01 (s)
+![4000_3000](https://hackmd.io/_uploads/S10qWArfkx.png)
+
+f = 3000, fs = 8000, L = 0.01 (s)
+![8000_3000](https://hackmd.io/_uploads/H1ooZAHGye.png)
+
+f = 3000, fs = 16000, L = 0.01 (s)
+![16000_3000](https://hackmd.io/_uploads/BkL3WCBMyl.png)
+
+f = 3000, fs = 44100, L = 0.01 (s)
+![44100_3000](https://hackmd.io/_uploads/Hkf6-AHzJx.png)
+
+從以上四張圖可以發現
+1. **取樣率越高，波型越完整**
+2. **取樣率越高，phase delay與理論值(-0.0000763)的誤差越小**
+
+#### -3dB 的概念與應用討論
+
+1. -3dB 的基本定義
+- -3dB 點是濾波器頻率響應中的重要參數，用來定義濾波器的**截止頻率**。
+- 當訊號的輸出功率下降到輸入功率的 **50%** 時，對應的頻率即為 -3dB 點。
+- 振幅與功率的關係：
+  - 功率比下降到 50%，對應的振幅比為 $\frac{1}{\sqrt{2}} \approx 0.707$。
+$$
+20 \log_{10}(0.707) = -3 \, \text{dB}
+$$
+
+2. -3dB 的實際應用
+- **頻率響應分析**：
+  - -3dB 點用於濾波器頻寬的判斷。
+  - 對低通濾波器，-3dB 點是信號開始明顯衰減的頻率。
+  - 對高通濾波器，-3dB 點是信號剛開始增強的頻率。
+
+3. 結合範例的案例分析
+
+Problem 3 中：
+
+當 $\Omega = 2\pi \cdot 400 \, \text{Hz}$ 時，計算相位得：
+$$
+|H(800\pi)| = \frac{1}{\sqrt{1^2 + 1^2}} = \frac{1}{\sqrt{2}} \approx 0.707
+$$
+
+**對應的頻率 400Hz 是濾波器的 -3dB 點。**
 
 ---
 
 ### **結論**
-從這些圖中可以看出，取樣頻率與訊號頻率的關係對訊號的準確度有影響。當訊號通過 RC 低通濾波器時，只要訊號頻率超過濾波器的截止頻率，即使取樣頻率不同，都會被顯著衰減。這表示 RC 濾波器能有效濾除高頻成分，削弱頻率超過截止點的訊號，並且在設計系統時需注意取樣頻率必須足夠高，以避免混疊現象。
+
+從這些圖中可以看出，取樣頻率與訊號頻率的關係對訊號的準確度有影響。當訊號通過 RC 低通濾波器時，只要訊號頻率超過濾波器的截止頻率，即使取樣頻率不同，都會被顯著衰減。這表示 RC 濾波器能有效濾除高頻成分，削弱頻率超過截止點的訊號，並且在設計時需注意取樣頻率必須足夠高，以避免混疊現象。
