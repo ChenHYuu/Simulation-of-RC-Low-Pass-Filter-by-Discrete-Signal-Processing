@@ -29,15 +29,17 @@ void write_wav_header(FILE *file, WAVHeader *header) {
     fwrite(header, sizeof(WAVHeader), 1, file);
 }
 
-short apply_rc_filter(short input, double *prev_output, double alpha, double beta) {
-    double output = alpha * (*prev_output) + beta * input;
+short apply_rc_filter(short input, double *prev_output, int sample_rate) {
+    double RC = 1.0 / (2 * PI * 400);
+    double tau = 1.0 / sample_rate;
+    double output = RC / (RC + tau) * (*prev_output) + tau / (RC + tau) * input;
     *prev_output = output;
     return (short)output;
 }
 
 int main(int argc, char *argv[]) {
     if (argc != 3) {
-        fprintf(stderr, "Usage: %s <input_file> <output_file>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <input_file.wav> <output_file.wav>\n", argv[0]);
         return 1;
     }
 
@@ -62,20 +64,16 @@ int main(int argc, char *argv[]) {
     write_wav_header(out_fp, &header);
 
     int sample_rate = header.sample_rate;
-    double RC = 1.0 / (2 * PI * 400);
-    double dt = 1.0 / sample_rate;
-    double alpha = RC / (RC + dt);
-    double beta = dt / (RC + dt);
 
     short buffer[BUFFER_SIZE];
-    double prev_output_left = 0;
-    double prev_output_right = 0;
+    double prev_output_left = 0;    // 用來保存左聲道的前一個輸出 y[n-1]
+    double prev_output_right = 0;   // 用來保存右聲道的前一個輸出 y[n-1]
 
     size_t samples_read;
-    while ((samples_read = fread(buffer, sizeof(short), BUFFER_SIZE, in_fp)) > 0) {
-        for (size_t i = 0; i < samples_read; i += 2) {
-            buffer[i] = apply_rc_filter(buffer[i], &prev_output_left, alpha, beta); 
-            buffer[i + 1] = apply_rc_filter(buffer[i + 1], &prev_output_right, alpha, beta); 
+    while ((samples_read = fread(buffer, sizeof(short), BUFFER_SIZE, in_fp)) > 0) {            // 一次讀取 1024 個樣本，直到沒有樣本可讀才會跳出迴圈
+        for (size_t i = 0; i < samples_read; i += 2) {                                         // 處理左右聲道的樣本
+            buffer[i] = apply_rc_filter(buffer[i], &prev_output_left, sample_rate);            // 將左聲道，i為雙數
+            buffer[i + 1] = apply_rc_filter(buffer[i + 1], &prev_output_right, sample_rate);   // 將右聲道，i+1為單數
         }
         fwrite(buffer, sizeof(short), samples_read, out_fp);
     }
