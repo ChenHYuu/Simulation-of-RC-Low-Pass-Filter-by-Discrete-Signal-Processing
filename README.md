@@ -776,15 +776,17 @@ void write_wav_header(FILE *file, WAVHeader *header) {
     fwrite(header, sizeof(WAVHeader), 1, file);
 }
 
-short apply_rc_filter(short input, double *prev_output, double alpha, double beta) {
-    double output = alpha * (*prev_output) + beta * input;
+short apply_rc_filter(short input, double *prev_output, int sample_rate) {
+    double RC = 1.0 / (2 * PI * 400);
+    double tau = 1.0 / sample_rate;
+    double output = RC / (RC + tau) * (*prev_output) + tau / (RC + tau) * input;
     *prev_output = output;
     return (short)output;
 }
 
 int main(int argc, char *argv[]) {
     if (argc != 3) {
-        fprintf(stderr, "Usage: %s <input_file> <output_file>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <input_file.wav> <output_file.wav>\n", argv[0]);
         return 1;
     }
 
@@ -792,33 +794,55 @@ int main(int argc, char *argv[]) {
     const char *output_file = argv[2];
 
     FILE *in_fp = fopen(input_file, "rb");
+    if (!in_fp) {
+        perror("Unable to open input file");
+        return 1;
+    }
+
     FILE *out_fp = fopen(output_file, "wb");
+    if (!out_fp) {
+        perror("Unable to open output file");
+        fclose(in_fp);
+        return 1;
+    }
 
     WAVHeader header;
     read_wav_header(in_fp, &header);
     write_wav_header(out_fp, &header);
 
     int sample_rate = header.sample_rate;
-    double RC = 1.0 / (2 * PI * 400);
-    double dt = 1.0 / sample_rate;
-    double alpha = RC / (RC + dt);
-    double beta = dt / (RC + dt);
+    int total_samples = header.data_size / (header.bits_per_sample / 8); // 計算總樣本數
 
-    short buffer[BUFFER_SIZE];
-    double prev_output_left = 0;
-    double prev_output_right = 0;
-
-    size_t samples_read;
-    while ((samples_read = fread(buffer, sizeof(short), BUFFER_SIZE, in_fp)) > 0) {
-        for (size_t i = 0; i < samples_read; i += 2) {
-            buffer[i] = apply_rc_filter(buffer[i], &prev_output_left, alpha, beta);
-            buffer[i + 1] = apply_rc_filter(buffer[i + 1], &prev_output_right, alpha, beta);
-        }
-        fwrite(buffer, sizeof(short), samples_read, out_fp);
+    short *buffer = malloc(header.data_size);
+    if (!buffer) {
+        fprintf(stderr, "Memory allocation error.\n");
+        fclose(in_fp);
+        fclose(out_fp);
+        return 1;
     }
 
+    if (fread(buffer, header.data_size, 1, in_fp) != 1) {
+        fprintf(stderr, "Error reading WAV data.\n");
+        free(buffer);
+        fclose(in_fp);
+        fclose(out_fp);
+        return 1;
+    }
+
+    double prev_output_left = 0;    // 用來保存左聲道的前一個輸出 y[n-1]
+    double prev_output_right = 0;   // 用來保存右聲道的前一個輸出 y[n-1]
+
+    for (int i = 0; i < total_samples; i += 2) {
+        buffer[i] = apply_rc_filter(buffer[i], &prev_output_left, sample_rate);    // 左聲道處理
+        buffer[i + 1] = apply_rc_filter(buffer[i + 1], &prev_output_right, sample_rate); // 右聲道處理
+    }
+
+    fwrite(buffer, header.data_size, 1, out_fp);
+
+    free(buffer);
     fclose(in_fp);
     fclose(out_fp);
+    printf("Filtered WAV file '%s' generated successfully.\n", output_file);
     return 0;
 }
 ```
@@ -883,14 +907,17 @@ void read_wav_header(FILE *file, WAVHeader *header) {
 
 void write_wav_header(FILE *file, WAVHeader *header) {
     fwrite(header, sizeof(WAVHeader), 1, file);
+}
 ```
 * `read_wav_header`：從輸入檔案讀取 WAV Header 並存入 `header` 結構體。
 * `write_wav_header`：將 `header` 結構體中的標頭資訊寫入輸出檔案。
 
 **4. apply_rc_filter 函數**
 ```c=+
-short apply_rc_filter(short input, double *prev_output, double alpha, double beta) {
-    double output = alpha * (*prev_output) + beta * input;
+short apply_rc_filter(short input, double *prev_output, int sample_rate) {
+    double RC = 1.0 / (2 * PI * 400);
+    double tau = 1.0 / sample_rate;
+    double output = RC / (RC + tau) * (*prev_output) + tau / (RC + tau) * input;
     *prev_output = output;
     return (short)output;
 }
@@ -899,7 +926,6 @@ short apply_rc_filter(short input, double *prev_output, double alpha, double bet
 $$
 y[n] = \frac{RC}{RC + \tau} y[n-1] + \frac{\tau}{\tau + RC} x[n] \tag{5-1}
 $$
-* `alpha` 和 `beta` 是濾波器參數，分別等於 `RC / (RC + dt)` 和 `dt / (RC + dt)`。
 * `input` 是當前sample值。
 * `prev_output` 用於儲存上一個輸出值，用來計算當前輸出 ( $y[n-1]$ )。
 
@@ -907,7 +933,7 @@ $$
 ```c=+
 int main(int argc, char *argv[]) {
     if (argc != 3) {
-        fprintf(stderr, "Usage: %s <input_file> <output_file>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <input_file.wav> <output_file.wav>\n", argv[0]);
         return 1;
     }
 
@@ -915,7 +941,17 @@ int main(int argc, char *argv[]) {
     const char *output_file = argv[2];
 
     FILE *in_fp = fopen(input_file, "rb");
+    if (!in_fp) {
+        perror("Unable to open input file");
+        return 1;
+    }
+
     FILE *out_fp = fopen(output_file, "wb");
+    if (!out_fp) {
+        perror("Unable to open output file");
+        fclose(in_fp);
+        return 1;
+    }
 
     WAVHeader header;
     read_wav_header(in_fp, &header);
@@ -926,40 +962,45 @@ int main(int argc, char *argv[]) {
 * 打開輸入和輸出檔案。
 * 從輸入檔案讀取 WAV 標頭並將其寫入輸出檔案，以保持檔案格式。
 
-**6. 濾波器參數計算**
+**6. 讀取、濾波並寫入音訊數據**
 ```c=+
     int sample_rate = header.sample_rate;
-    double RC = 1.0 / (2 * PI * 400);
-    double dt = 1.0 / sample_rate;
-    double alpha = RC / (RC + dt);
-    double beta = dt / (RC + dt);
-```
-* `RC`：RC 濾波器的常數， $R = 1000 \Omega$, $C = \frac{1}{2\pi \times 400 \times 1000}$。
-* `dt`：每個樣本的時間間隔。
-* `alpha` 和 `beta` 是濾波器參數，分別等於 `RC / (RC + dt)` 和 `dt / (RC + dt)`。
+    int total_samples = header.data_size / (header.bits_per_sample / 8); // 計算總樣本數
 
-**7. 讀取、濾波並寫入音訊數據**
-```c=+
-    short buffer[BUFFER_SIZE];
-    double prev_output_left = 0;
-    double prev_output_right = 0;
-
-    size_t samples_read;
-    while ((samples_read = fread(buffer, sizeof(short), BUFFER_SIZE, in_fp)) > 0) {
-        for (size_t i = 0; i < samples_read; i += 2) {
-            buffer[i] = apply_rc_filter(buffer[i], &prev_output_left, alpha, beta);
-            buffer[i + 1] = apply_rc_filter(buffer[i + 1], &prev_output_right, alpha, beta);
-        }
-        fwrite(buffer, sizeof(short), samples_read, out_fp);
+    short *buffer = malloc(header.data_size);
+    if (!buffer) {
+        fprintf(stderr, "Memory allocation error.\n");
+        fclose(in_fp);
+        fclose(out_fp);
+        return 1;
     }
+
+    if (fread(buffer, header.data_size, 1, in_fp) != 1) {
+        fprintf(stderr, "Error reading WAV data.\n");
+        free(buffer);
+        fclose(in_fp);
+        fclose(out_fp);
+        return 1;
+    }
+
+    double prev_output_left = 0;    // 用來保存左聲道的前一個輸出 y[n-1]
+    double prev_output_right = 0;   // 用來保存右聲道的前一個輸出 y[n-1]
+
+    for (int i = 0; i < total_samples; i += 2) {
+        buffer[i] = apply_rc_filter(buffer[i], &prev_output_left, sample_rate);    // 左聲道處理
+        buffer[i + 1] = apply_rc_filter(buffer[i + 1], &prev_output_right, sample_rate); // 右聲道處理
+    }
+
+    fwrite(buffer, header.data_size, 1, out_fp);
 ```
 * `buffer`：用於儲存從檔案中讀取的音訊數據。
 * `prev_output_left` 和 `prev_output_right`：分別記錄左右聲道的上一個輸出。
 * 迴圈中，每次從輸入檔案中讀取一組樣本。
 * 對於每組樣本，將左右聲道分別用 RC 濾波器濾波再寫入輸出檔案。
 
-**8. 關閉檔案並結束程式**
+**7. 關閉檔案並結束程式**
 ```c=+
+    free(buffer);
     fclose(in_fp);
     fclose(out_fp);
     printf("Filtered WAV file '%s' generated successfully.\n", output_file);
