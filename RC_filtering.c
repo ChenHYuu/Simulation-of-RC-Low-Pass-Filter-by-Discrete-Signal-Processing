@@ -64,20 +64,35 @@ int main(int argc, char *argv[]) {
     write_wav_header(out_fp, &header);
 
     int sample_rate = header.sample_rate;
+    int total_samples = header.data_size / (header.bits_per_sample / 8); // 計算總樣本數
 
-    short buffer[BUFFER_SIZE];
+    short *buffer = malloc(header.data_size);
+    if (!buffer) {
+        fprintf(stderr, "Memory allocation error.\n");
+        fclose(in_fp);
+        fclose(out_fp);
+        return 1;
+    }
+
+    if (fread(buffer, header.data_size, 1, in_fp) != 1) {
+        fprintf(stderr, "Error reading WAV data.\n");
+        free(buffer);
+        fclose(in_fp);
+        fclose(out_fp);
+        return 1;
+    }
+
     double prev_output_left = 0;    // 用來保存左聲道的前一個輸出 y[n-1]
     double prev_output_right = 0;   // 用來保存右聲道的前一個輸出 y[n-1]
 
-    size_t samples_read;
-    while ((samples_read = fread(buffer, sizeof(short), BUFFER_SIZE, in_fp)) > 0) {            // 一次讀取 1024 個樣本，直到沒有樣本可讀才會跳出迴圈
-        for (size_t i = 0; i < samples_read; i += 2) {                                         // 處理左右聲道的樣本
-            buffer[i] = apply_rc_filter(buffer[i], &prev_output_left, sample_rate);            // 將左聲道，i為雙數
-            buffer[i + 1] = apply_rc_filter(buffer[i + 1], &prev_output_right, sample_rate);   // 將右聲道，i+1為單數
-        }
-        fwrite(buffer, sizeof(short), samples_read, out_fp);
+    for (int i = 0; i < total_samples; i += 2) {
+        buffer[i] = apply_rc_filter(buffer[i], &prev_output_left, sample_rate);    // 左聲道處理
+        buffer[i + 1] = apply_rc_filter(buffer[i + 1], &prev_output_right, sample_rate); // 右聲道處理
     }
 
+    fwrite(buffer, header.data_size, 1, out_fp);
+
+    free(buffer);
     fclose(in_fp);
     fclose(out_fp);
     printf("Filtered WAV file '%s' generated successfully.\n", output_file);
